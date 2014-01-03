@@ -47,9 +47,9 @@ class cCSLock
 	bool m_IsLocked;
 	
 public:
-	cCSLock(cCriticalSection * a_CS);
-	cCSLock(cCriticalSection & a_CS);
-	~cCSLock();
+	cCSLock(cCriticalSection * a_CS) __attribute__((exclusive_lock_function(m_CS)));
+	cCSLock(cCriticalSection & a_CS) __attribute__((exclusive_lock_function(m_CS)));
+	~cCSLock() __attribute__((unlock_function(m_CS)));
 	
 	// Temporarily unlock or re-lock:
 	void Lock(void) __attribute__((exclusive_lock_function(m_CS)));
