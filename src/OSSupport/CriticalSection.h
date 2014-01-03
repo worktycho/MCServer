@@ -52,8 +52,8 @@ public:
 	~cCSLock();
 	
 	// Temporarily unlock or re-lock:
-	void Lock(void);
-	void Unlock(void);
+	void Lock(void) __attribute__((exclusive_lock_function(m_CS)));
+	void Unlock(void)  __attribute__((unlock_function(m_CS)));
 
 private:
 	DISALLOW_COPY_AND_ASSIGN(cCSLock);
