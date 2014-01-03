@@ -136,12 +136,12 @@ void cChunkSender::Execute(void)
 {
 	while (!m_ShouldTerminate)
 	{
-		cCSLock Lock(m_CS);
+		m_CS.Lock();
 		while (m_ChunksReady.empty() && m_SendChunks.empty())
 		{
 			int RemoveCount = m_RemoveCount;
 			m_RemoveCount = 0;
-			cCSUnlock Unlock(Lock);
+			m_CS.Unlock();
 			for (int i = 0; i < RemoveCount; i++)
 			{
 				m_evtRemoved.Set();  // Notify that the removed clients are safe to be deleted
@@ -151,6 +151,7 @@ void cChunkSender::Execute(void)
 			{
 				return;
 			}
+			m_CS.Lock();
 		}  // while (empty)
 		
 		if (!m_ChunksReady.empty())
@@ -158,7 +159,7 @@ void cChunkSender::Execute(void)
 			// Take one from the queue:
 			cChunkCoords Coords(m_ChunksReady.front());
 			m_ChunksReady.pop_front();
-			Lock.Unlock();
+			m_CS.Unlock();
 			
 			SendChunk(Coords.m_ChunkX, Coords.m_ChunkY, Coords.m_ChunkZ, NULL);
 		}
@@ -167,14 +168,14 @@ void cChunkSender::Execute(void)
 			// Take one from the queue:
 			sSendChunk Chunk(m_SendChunks.front());
 			m_SendChunks.pop_front();
-			Lock.Unlock();
+			m_CS.Unlock();
 			
 			SendChunk(Chunk.m_ChunkX, Chunk.m_ChunkY, Chunk.m_ChunkZ, Chunk.m_Client);
 		}
-		Lock.Lock();
+		m_CS.Lock();
 		int RemoveCount = m_RemoveCount;
 		m_RemoveCount = 0;
-		Lock.Unlock();
+		m_CS.Unlock();
 		for (int i = 0; i < RemoveCount; i++)
 		{
 			m_evtRemoved.Set();  // Notify that the removed clients are safe to be deleted
