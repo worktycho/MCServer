@@ -199,32 +199,32 @@ void cChunkGenerator::Execute(void)
 
 	while (!m_ShouldTerminate)
 	{
-		m_CS.Lock();
-		while (m_Queue.size() == 0)
-		{
-			if ((NumChunksGenerated > 16) && (clock() - LastReportTick > CLOCKS_PER_SEC))
+		{ // Scope for lock
+			cCSLock Lock(m_CS);
+			while (m_Queue.size() == 0)
 			{
-				LOG("Chunk generator performance: %.2f ch/s (%d ch total)",
-					(double)NumChunksGenerated * CLOCKS_PER_SEC/ (clock() - GenerationStart),
-					NumChunksGenerated
-				);
+				if ((NumChunksGenerated > 16) && (clock() - LastReportTick > CLOCKS_PER_SEC))
+				{
+					LOG("Chunk generator performance: %.2f ch/s (%d ch total)",
+						(double)NumChunksGenerated * CLOCKS_PER_SEC/ (clock() - GenerationStart),
+						NumChunksGenerated
+					);
+				}
+				cCSUnlock Unlock(Lock);
+				m_Event.Wait();
+				if (m_ShouldTerminate)
+				{
+					return;
+				}
+				NumChunksGenerated = 0;
+				GenerationStart = clock();
+				LastReportTick = clock();
 			}
-			m_CS.Unlock();
-			m_Event.Wait();
-			if (m_ShouldTerminate)
-			{
-				return;
-			}
-			NumChunksGenerated = 0;
-			GenerationStart = clock();
-			LastReportTick = clock();
-			m_CS.Lock();
-		}
 
-		cChunkCoords coords = m_Queue.front();		// Get next coord from queue
-		m_Queue.erase( m_Queue.begin() );	// Remove coordinate from queue
-		bool SkipEnabled = (m_Queue.size() > QUEUE_SKIP_LIMIT);
-		m_CS.Unlock();
+			cChunkCoords coords = m_Queue.front();		// Get next coord from queue
+			m_Queue.erase( m_Queue.begin() );	// Remove coordinate from queue
+			bool SkipEnabled = (m_Queue.size() > QUEUE_SKIP_LIMIT);
+		} // Unlock ASAP
 		m_evtRemoved.Set();
 
 		// Display perf info once in a while:
