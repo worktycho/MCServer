@@ -5,14 +5,14 @@
 
 
 
-class cCriticalSection
+class __attribute__((lockable)) cCriticalSection
 {
 public:
 	cCriticalSection(void);
 	~cCriticalSection();
 
-	void Lock(void);
-	void Unlock(void);
+	void Lock(void) __attribute__((exclusive_lock_function));
+	void Unlock(void) __attribute__((unlock_function));
 	
 	#ifdef _DEBUG
 	bool IsLocked(void);
