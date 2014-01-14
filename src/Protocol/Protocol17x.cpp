@@ -1142,9 +1142,10 @@ void cProtocol172::HandlePacketStatusRequest(cByteBuffer & a_ByteBuffer)
 	AppendPrintf(Response, "\"description\":{\"text\":\"%s\"},",
 		cRoot::Get()->GetServer()->GetDescription().c_str()
 	);
-	AppendPrintf(Response, "\"favicon\":\"data:image/png;base64,%s\"",
-		cRoot::Get()->GetServer()->GetFaviconData().c_str()
-	);
+	// AppendPrintf Segfaults on large strings
+	Response.append("\"favicon\":\"data:image/png;base64,");
+	Response.append(cRoot::Get()->GetServer()->GetFaviconData().c_str());
+	Response.append("\"");
 	Response.append("}");
 	
 	cPacketizer Pkt(*this, 0x00);  // Response packet
