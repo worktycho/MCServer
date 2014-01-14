@@ -4,7 +4,7 @@
 
 
 /*
-Vector2i.h
+Vector2b.h
 
 Represents a pair of booleans. Its primary purpose is as a return type for Vector2i comparison operators but can be used for preforming boolean operations in parallel.
 
