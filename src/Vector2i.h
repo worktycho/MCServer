@@ -68,7 +68,7 @@ public:
         
         friend Vector2b operator > ( const Vector2i& v1, const Vector2i& v2 )
         { 
-		    return v2 > v1;
+		    return v2 < v1 ;
         }
         
         
@@ -115,7 +115,7 @@ public:
         
         friend Vector2b operator > ( const Vector2i& v1, const Vector2i& v2 )
         { 
-		    return v2 > v1;
+		    return v2 < v1;
         }
 private:
         int x, z;
