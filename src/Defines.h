@@ -263,6 +263,15 @@ inline bool IsBlockWater(BLOCKTYPE a_BlockType)
 
 
 
+inline bool IsBlockWaterOrIce(BLOCKTYPE a_BlockType)
+{
+	return (IsBlockWater(a_BlockType) || (a_BlockType == E_BLOCK_ICE));
+}
+
+
+
+
+
 inline bool IsBlockLava(BLOCKTYPE a_BlockType)
 {
 	return ((a_BlockType == E_BLOCK_LAVA) || (a_BlockType == E_BLOCK_STATIONARY_LAVA));
@@ -316,7 +325,7 @@ inline bool IsBlockTypeOfDirt(BLOCKTYPE a_BlockType)
 
 
 
-inline void AddFaceDirection(int & a_BlockX, int & a_BlockY, int & a_BlockZ, char a_BlockFace, bool a_bInverse = false)  // tolua_export
+inline void AddFaceDirection(int & a_BlockX, int & a_BlockY, int & a_BlockZ, eBlockFace a_BlockFace, bool a_bInverse = false)  // tolua_export
 {  // tolua_export
 	if (!a_bInverse)
 	{
@@ -360,7 +369,7 @@ inline void AddFaceDirection(int & a_BlockX, int & a_BlockY, int & a_BlockZ, cha
 
 
 
-inline void AddFaceDirection(int & a_BlockX, unsigned char & a_BlockY, int & a_BlockZ, char a_BlockFace, bool a_bInverse = false)
+inline void AddFaceDirection(int & a_BlockX, unsigned char & a_BlockY, int & a_BlockZ, eBlockFace a_BlockFace, bool a_bInverse = false)
 {
 	int Y = a_BlockY;
 	AddFaceDirection(a_BlockX, Y, a_BlockZ, a_BlockFace, a_bInverse);
@@ -377,8 +386,6 @@ inline void AddFaceDirection(int & a_BlockX, unsigned char & a_BlockY, int & a_B
 		a_BlockY = (unsigned char)Y;
 	}
 }
-
-
 
 
 

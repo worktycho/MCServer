@@ -500,6 +500,11 @@ enum
 	E_META_PLANKS_BIRCH   = 2,
 	E_META_PLANKS_JUNGLE  = 3,
 	
+	// E_BLOCK_QUARTZ_BLOCK metas:
+	E_META_QUARTZ_NORMAL = 0,
+	E_META_QUARTZ_CHISELLED = 1,
+	E_META_QUARTZ_PILLAR = 2,
+
 	// E_BLOCK_RAIL metas
 	E_META_RAIL_ZM_ZP              = 0,
 	E_META_RAIL_XM_XP              = 1,
@@ -801,6 +806,7 @@ enum eDamageType
 	dtPotionOfHarming,
 	dtEnderPearl,       // Thrown an ender pearl, teleported by it
 	dtAdmin,            // Damage applied by an admin command
+	dtExplosion,        // Damage applied by an explosion
 	
 	// Some common synonyms:
 	dtPawnAttack   = dtAttack,

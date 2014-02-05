@@ -44,13 +44,25 @@ if(MSVC)
 	set(CMAKE_MODULE_LINKER_FLAGS_RELEASE "${CMAKE_MODULE_LINKER_FLAGS_RELEASE} /LTCG")
 elseif(APPLE)
 	#on os x clang adds pthread for us but we need to add it for gcc
-	if (NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+		set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS}         -std=c++11")
+		set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG}   -std=c++11")
+		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -std=c++11")
+	else()
 		add_flags_cxx("-pthread")
-		add_flags_cxx("-std=c++11")
 	endif()
+
 else()
 	# Let gcc / clang know that we're compiling a multi-threaded app:
 	add_flags_cxx("-pthread")
+	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+		set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS}         -std=c++11")
+		set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG}   -std=c++11")
+		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -std=c++11")
+	endif()
+
+	# We use a signed char (fixes #640 on RasPi)
+	add_flags_cxx("-fsigned-char")
 endif()
 
 
@@ -199,6 +211,7 @@ if (NOT MSVC)
 	string(REPLACE "-w" "" CMAKE_C_FLAGS_RELEASE   "${CMAKE_C_FLAGS_RELEASE}")
 	string(REPLACE "-w" "" CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG}")
 	string(REPLACE "-w" "" CMAKE_C_FLAGS_DEBUG     "${CMAKE_C_FLAGS_DEBUG}")
+	add_flags_cxx("-Wall")
 endif()
 
 if(${BUILD_TOOLS})

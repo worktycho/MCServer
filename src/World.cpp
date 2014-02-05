@@ -632,7 +632,7 @@ void cWorld::GenerateRandomSpawn(void)
 {
 	LOGD("Generating random spawnpoint...");
 
-	while (IsBlockWater(GetBlock((int)m_SpawnX, GetHeight((int)m_SpawnX, (int)m_SpawnZ), (int)m_SpawnZ)))
+	while (IsBlockWaterOrIce(GetBlock((int)m_SpawnX, GetHeight((int)m_SpawnX, (int)m_SpawnZ), (int)m_SpawnZ)))
 	{
 		if ((GetTickRandomNumber(4) % 2) == 0) // Randomise whether to increment X or Z coords
 		{
@@ -716,19 +716,7 @@ void cWorld::Tick(float a_Dt, int a_LastTickDurationMSec)
 
 	TickWeather(a_Dt);
 
-	// Asynchronously set blocks:
-	sSetBlockList FastSetBlockQueueCopy;
-	{
-		cCSLock Lock(m_CSFastSetBlock);
-		std::swap(FastSetBlockQueueCopy, m_FastSetBlockQueue);
-	}
-	m_ChunkMap->FastSetBlocks(FastSetBlockQueueCopy);
-	if (!FastSetBlockQueueCopy.empty())
-	{
-		// Some blocks failed, store them for next tick:
-		cCSLock Lock(m_CSFastSetBlock);
-		m_FastSetBlockQueue.splice(m_FastSetBlockQueue.end(), FastSetBlockQueueCopy);
-	}
+	m_ChunkMap->FastSetQueuedBlocks();
 
 	if (m_WorldAge - m_LastSave > 60 * 5 * 20) // Save each 5 minutes
 	{
@@ -1234,7 +1222,7 @@ void cWorld::GrowTreeByBiome(int a_X, int a_Y, int a_Z)
 {
 	cNoise Noise(m_Generator.GetSeed());
 	sSetBlockVector Logs, Other;
-	GetTreeImageByBiome(a_X, a_Y, a_Z, Noise, (int)(m_WorldAge & 0xffffffff), (EMCSBiome)GetBiomeAt(a_X, a_Z), Logs, Other);
+	GetTreeImageByBiome(a_X, a_Y, a_Z, Noise, (int)(m_WorldAge & 0xffffffff), GetBiomeAt(a_X, a_Z), Logs, Other);
 	Other.insert(Other.begin(), Logs.begin(), Logs.end());
 	Logs.clear();
 	GrowTreeImage(Other);
@@ -1487,7 +1475,7 @@ void cWorld::GrowSugarcane(int a_BlockX, int a_BlockY, int a_BlockZ, int a_NumBl
 
 
 
-int cWorld::GetBiomeAt (int a_BlockX, int a_BlockZ)
+EMCSBiome cWorld::GetBiomeAt (int a_BlockX, int a_BlockZ)
 {
 	return m_ChunkMap->GetBiomeAt(a_BlockX, a_BlockZ);
 }
@@ -1498,81 +1486,8 @@ int cWorld::GetBiomeAt (int a_BlockX, int a_BlockZ)
 
 void cWorld::SetBlock(int a_BlockX, int a_BlockY, int a_BlockZ, BLOCKTYPE a_BlockType, NIBBLETYPE a_BlockMeta)
 {
-	if (a_BlockType == E_BLOCK_AIR)
-	{
-		BlockHandler(GetBlock(a_BlockX, a_BlockY, a_BlockZ))->OnDestroyed(this, a_BlockX, a_BlockY, a_BlockZ);
-	}
-	m_ChunkMap->SetBlock(a_BlockX, a_BlockY, a_BlockZ, a_BlockType, a_BlockMeta);
-
-	BlockHandler(a_BlockType)->OnPlaced(this, a_BlockX, a_BlockY, a_BlockZ, a_BlockType, a_BlockMeta);
+	m_ChunkMap->SetBlock(*this, a_BlockX, a_BlockY, a_BlockZ, a_BlockType, a_BlockMeta);
 }
-
-
-
-
-
-void cWorld::FastSetBlock(int a_X, int a_Y, int a_Z, BLOCKTYPE a_BlockType, NIBBLETYPE a_BlockMeta)
-{
-	cCSLock Lock(m_CSFastSetBlock);
-	m_FastSetBlockQueue.push_back(sSetBlock(a_X, a_Y, a_Z, a_BlockType, a_BlockMeta)); 
-}
-
-
-
-
-
-void cWorld::QueueSetBlock(int a_BlockX, int a_BlockY, int a_BlockZ, BLOCKTYPE a_BlockType, NIBBLETYPE a_BlockMeta, int a_TickDelay, BLOCKTYPE a_PreviousBlockType)
-{
-	m_ChunkMap->QueueSetBlock(a_BlockX, a_BlockY, a_BlockZ, a_BlockType, a_BlockMeta, GetWorldAge() + a_TickDelay, a_PreviousBlockType);
-}
-
-
-
-
-
-BLOCKTYPE cWorld::GetBlock(int a_X, int a_Y, int a_Z)
-{
-	// First check if it isn't queued in the m_FastSetBlockQueue:
-	{
-		int X = a_X, Y = a_Y, Z = a_Z;
-		int ChunkX, ChunkY, ChunkZ;
-		AbsoluteToRelative(X, Y, Z, ChunkX, ChunkY, ChunkZ);
-		
-		cCSLock Lock(m_CSFastSetBlock);
-		for (sSetBlockList::iterator itr = m_FastSetBlockQueue.begin(); itr != m_FastSetBlockQueue.end(); ++itr)
-		{
-			if ((itr->x == X) && (itr->y == Y) && (itr->z == Z) && (itr->ChunkX == ChunkX) && (itr->ChunkZ == ChunkZ))
-			{
-				return itr->BlockType;
-			}
-		}  // for itr - m_FastSetBlockQueue[]
-	}
-	
-	return m_ChunkMap->GetBlock(a_X, a_Y, a_Z);
-}
-
-
-
-
-
-NIBBLETYPE cWorld::GetBlockMeta(int a_X, int a_Y, int a_Z)
-{
-	// First check if it isn't queued in the m_FastSetBlockQueue:
-	{
-		cCSLock Lock(m_CSFastSetBlock);
-		for (sSetBlockList::iterator itr = m_FastSetBlockQueue.begin(); itr != m_FastSetBlockQueue.end(); ++itr)
-		{
-			if ((itr->x == a_X) && (itr->y == a_Y) && (itr->y == a_Y))
-			{
-				return itr->BlockMeta;
-			}
-		}  // for itr - m_FastSetBlockQueue[]
-	}
-	
-	return m_ChunkMap->GetBlockMeta(a_X, a_Y, a_Z);
-}
-
-
 
 
 
@@ -1636,7 +1551,7 @@ void cWorld::SpawnItemPickups(const cItems & a_Pickups, double a_BlockX, double 
 	a_FlyAwaySpeed /= 100;  // Pre-divide, so that we don't have to divide each time inside the loop
 	for (cItems::const_iterator itr = a_Pickups.begin(); itr != a_Pickups.end(); ++itr)
 	{
-		if (!IsValidItem(itr->m_ItemType))
+		if (!IsValidItem(itr->m_ItemType) || itr->m_ItemType == E_BLOCK_AIR)
 		{
 			// Don't spawn pickup if item isn't even valid; should prevent client crashing too
 			continue;
@@ -1662,7 +1577,7 @@ void cWorld::SpawnItemPickups(const cItems & a_Pickups, double a_BlockX, double 
 {
 	for (cItems::const_iterator itr = a_Pickups.begin(); itr != a_Pickups.end(); ++itr)
 	{
-		if (!IsValidItem(itr->m_ItemType))
+		if (!IsValidItem(itr->m_ItemType) || itr->m_ItemType == E_BLOCK_AIR)
 		{
 			continue;
 		}
@@ -1757,7 +1672,8 @@ bool cWorld::GetBlocks(sSetBlockVector & a_Blocks, bool a_ContinueOnFailure)
 bool cWorld::DigBlock(int a_X, int a_Y, int a_Z)
 {
 	cBlockHandler *Handler = cBlockHandler::GetBlockHandler(GetBlock(a_X, a_Y, a_Z));
-	Handler->OnDestroyed(this, a_X, a_Y, a_Z);
+	cChunkInterface ChunkInterface(GetChunkMap());
+	Handler->OnDestroyed(ChunkInterface, *this, a_X, a_Y, a_Z);
 	return m_ChunkMap->DigBlock(a_X, a_Y, a_Z);
 }
 
@@ -2423,7 +2339,7 @@ bool cWorld::FindAndDoWithPlayer(const AString & a_PlayerNameHint, cPlayerListCa
 
 
 // TODO: This interface is dangerous!
-cPlayer * cWorld::FindClosestPlayer(const Vector3f & a_Pos, float a_SightLimit, bool a_CheckLineOfSight)
+cPlayer * cWorld::FindClosestPlayer(const Vector3d & a_Pos, float a_SightLimit, bool a_CheckLineOfSight)
 {
 	cTracer LineOfSight(this);
 

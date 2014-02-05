@@ -5,6 +5,7 @@
 #include "../World.h"
 #include "../Entities/Player.h"
 #include "../FastRandom.h"
+#include "../BlockInServerPluginInterface.h"
 
 // Handlers:
 #include "ItemBed.h"
@@ -230,7 +231,7 @@ cItemHandler::cItemHandler(int a_ItemType)
 
 
 
-bool cItemHandler::OnItemUse(cWorld * a_World, cPlayer * a_Player, const cItem & a_Item, int a_BlockX, int a_BlockY, int a_BlockZ, char a_Dir)
+bool cItemHandler::OnItemUse(cWorld * a_World, cPlayer * a_Player, const cItem & a_Item, int a_BlockX, int a_BlockY, int a_BlockZ, eBlockFace a_Dir)
 {
 	return false;
 }
@@ -239,7 +240,7 @@ bool cItemHandler::OnItemUse(cWorld * a_World, cPlayer * a_Player, const cItem &
 
 
 
-bool cItemHandler::OnDiggingBlock(cWorld * a_World, cPlayer * a_Player, const cItem & a_Item, int a_BlockX, int a_BlockY, int a_BlockZ, char a_Dir)
+bool cItemHandler::OnDiggingBlock(cWorld * a_World, cPlayer * a_Player, const cItem & a_Item, int a_BlockX, int a_BlockY, int a_BlockZ, eBlockFace a_Dir)
 {
 	return false;
 }
@@ -257,7 +258,9 @@ void cItemHandler::OnBlockDestroyed(cWorld * a_World, cPlayer * a_Player, const 
 	{
 		if (!BlockRequiresSpecialTool(Block) || CanHarvestBlock(Block))
 		{
-			Handler->DropBlock(a_World, a_Player, a_BlockX, a_BlockY, a_BlockZ);
+			cChunkInterface ChunkInterface(a_World->GetChunkMap());
+			cBlockInServerPluginInterface PluginInterface(*a_World);
+			Handler->DropBlock(ChunkInterface, *a_World, PluginInterface, a_Player, a_BlockX, a_BlockY, a_BlockZ);
 		}
 	}
 	
@@ -451,7 +454,7 @@ bool cItemHandler::CanHarvestBlock(BLOCKTYPE a_BlockType)
 
 bool cItemHandler::GetPlacementBlockTypeMeta(
 	cWorld * a_World, cPlayer * a_Player,
-	int a_BlockX, int a_BlockY, int a_BlockZ, char a_BlockFace, 
+	int a_BlockX, int a_BlockY, int a_BlockZ, eBlockFace a_BlockFace, 
 	int a_CursorX, int a_CursorY, int a_CursorZ,
 	BLOCKTYPE & a_BlockType, NIBBLETYPE & a_BlockMeta
 )
@@ -465,8 +468,9 @@ bool cItemHandler::GetPlacementBlockTypeMeta(
 	}
 	
 	cBlockHandler * BlockH = BlockHandler(m_ItemType);
+	cChunkInterface ChunkInterface(a_World->GetChunkMap());
 	return BlockH->GetPlacementBlockTypeMeta(
-		a_World, a_Player,
+		ChunkInterface, a_Player,
 		a_BlockX, a_BlockY, a_BlockZ, a_BlockFace, 
 		a_CursorX, a_CursorY, a_CursorZ,
 		a_BlockType, a_BlockMeta

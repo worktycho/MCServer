@@ -99,7 +99,7 @@ void cProtocol172::DataReceived(const char * a_Data, int a_Size)
 		Byte Decrypted[512];
 		while (a_Size > 0)
 		{
-			int NumBytes = (a_Size > sizeof(Decrypted)) ? sizeof(Decrypted) : a_Size;
+			size_t NumBytes = (a_Size > sizeof(Decrypted)) ? sizeof(Decrypted) : a_Size;
 			m_Decryptor.ProcessData(Decrypted, (Byte *)a_Data, NumBytes);
 			AddReceivedData((const char *)Decrypted, NumBytes);
 			a_Size -= NumBytes;
@@ -1479,8 +1479,8 @@ void cProtocol172::HandlePacketBlockDig(cByteBuffer & a_ByteBuffer)
 	HANDLE_READ(a_ByteBuffer, ReadBEInt, int,  BlockX);
 	HANDLE_READ(a_ByteBuffer, ReadByte,  Byte, BlockY);
 	HANDLE_READ(a_ByteBuffer, ReadBEInt, int,  BlockZ);
-	HANDLE_READ(a_ByteBuffer, ReadByte,  Byte, Face);
-	m_Client->HandleLeftClick(BlockX, BlockY, BlockZ, Face, Status);
+	HANDLE_READ(a_ByteBuffer, ReadChar,  char, Face);
+	m_Client->HandleLeftClick(BlockX, BlockY, BlockZ, static_cast<eBlockFace>(Face), Status);
 }
 
 
@@ -1492,14 +1492,14 @@ void cProtocol172::HandlePacketBlockPlace(cByteBuffer & a_ByteBuffer)
 	HANDLE_READ(a_ByteBuffer, ReadBEInt, int,  BlockX);
 	HANDLE_READ(a_ByteBuffer, ReadByte,  Byte, BlockY);
 	HANDLE_READ(a_ByteBuffer, ReadBEInt, int,  BlockZ);
-	HANDLE_READ(a_ByteBuffer, ReadByte,  Byte, Face);
+	HANDLE_READ(a_ByteBuffer, ReadChar,  char, Face);
 	cItem Item;
 	ReadItem(a_ByteBuffer, Item);
 
 	HANDLE_READ(a_ByteBuffer, ReadByte,  Byte, CursorX);
 	HANDLE_READ(a_ByteBuffer, ReadByte,  Byte, CursorY);
 	HANDLE_READ(a_ByteBuffer, ReadByte,  Byte, CursorZ);
-	m_Client->HandleRightClick(BlockX, BlockY, BlockZ, Face, CursorX, CursorY, CursorZ, m_Client->GetPlayer()->GetEquippedItem());
+	m_Client->HandleRightClick(BlockX, BlockY, BlockZ, static_cast<eBlockFace>(Face), CursorX, CursorY, CursorZ, m_Client->GetPlayer()->GetEquippedItem());
 }
 
 
@@ -1836,7 +1836,7 @@ void cProtocol172::SendData(const char * a_Data, int a_Size)
 		Byte Encrypted[8192];  // Larger buffer, we may be sending lots of data (chunks)
 		while (a_Size > 0)
 		{
-			int NumBytes = (a_Size > sizeof(Encrypted)) ? sizeof(Encrypted) : a_Size;
+			size_t NumBytes = ((size_t)a_Size > sizeof(Encrypted)) ? sizeof(Encrypted) : (size_t)a_Size;
 			m_Encryptor.ProcessData(Encrypted, (Byte *)a_Data, NumBytes);
 			m_Client->SendData((const char *)Encrypted, NumBytes);
 			a_Size -= NumBytes;

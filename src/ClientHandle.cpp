@@ -20,6 +20,7 @@
 #include "Items/ItemHandler.h"
 #include "Blocks/BlockHandler.h"
 #include "Blocks/BlockSlab.h"
+#include "Blocks/ChunkInterface.h"
 
 #include "Vector3f.h"
 #include "Vector3d.h"
@@ -619,7 +620,7 @@ void cClientHandle::HandleCommandBlockMessage(const char* a_Data, unsigned int a
 
 
 
-void cClientHandle::HandleLeftClick(int a_BlockX, int a_BlockY, int a_BlockZ, char a_BlockFace, char a_Status)
+void cClientHandle::HandleLeftClick(int a_BlockX, int a_BlockY, int a_BlockZ, eBlockFace a_BlockFace, char a_Status)
 {
 	LOGD("HandleLeftClick: {%i, %i, %i}; Face: %i; Stat: %i",
 		a_BlockX, a_BlockY, a_BlockZ, a_BlockFace, a_Status
@@ -720,7 +721,7 @@ void cClientHandle::HandleLeftClick(int a_BlockX, int a_BlockY, int a_BlockZ, ch
 
 
 
-void cClientHandle::HandleBlockDigStarted(int a_BlockX, int a_BlockY, int a_BlockZ, char a_BlockFace, BLOCKTYPE a_OldBlock, NIBBLETYPE a_OldMeta)
+void cClientHandle::HandleBlockDigStarted(int a_BlockX, int a_BlockY, int a_BlockZ, eBlockFace a_BlockFace, BLOCKTYPE a_OldBlock, NIBBLETYPE a_OldMeta)
 {
 	if (
 		m_HasStartedDigging &&
@@ -766,9 +767,9 @@ void cClientHandle::HandleBlockDigStarted(int a_BlockX, int a_BlockY, int a_Bloc
 	m_Player->GetWorld()->BroadcastBlockBreakAnimation(m_UniqueID, m_BlockDigAnimX, m_BlockDigAnimY, m_BlockDigAnimZ, 0, this);
 
 	cWorld * World = m_Player->GetWorld();
-	
+	cChunkInterface ChunkInterface(World->GetChunkMap());
 	cBlockHandler * Handler = cBlockHandler::GetBlockHandler(a_OldBlock);
-	Handler->OnDigging(World, m_Player, a_BlockX, a_BlockY, a_BlockZ);
+	Handler->OnDigging(ChunkInterface, *World, m_Player, a_BlockX, a_BlockY, a_BlockZ);
 
 	cItemHandler * ItemHandler = cItemHandler::GetItemHandler(m_Player->GetEquippedItem());
 	ItemHandler->OnDiggingBlock(World, m_Player, m_Player->GetEquippedItem(), a_BlockX, a_BlockY, a_BlockZ, a_BlockFace);
@@ -785,7 +786,7 @@ void cClientHandle::HandleBlockDigStarted(int a_BlockX, int a_BlockY, int a_Bloc
 
 		if (Handler->IsClickedThrough())
 		{
-			Handler->OnDigging(World, m_Player, pX, pY, pZ);
+			Handler->OnDigging(ChunkInterface, *World, m_Player, pX, pY, pZ);
 		}
 	}
 }
@@ -794,7 +795,7 @@ void cClientHandle::HandleBlockDigStarted(int a_BlockX, int a_BlockY, int a_Bloc
 
 
 
-void cClientHandle::HandleBlockDigFinished(int a_BlockX, int a_BlockY, int a_BlockZ, char a_BlockFace, BLOCKTYPE a_OldBlock, NIBBLETYPE a_OldMeta)
+void cClientHandle::HandleBlockDigFinished(int a_BlockX, int a_BlockY, int a_BlockZ, eBlockFace a_BlockFace, BLOCKTYPE a_OldBlock, NIBBLETYPE a_OldMeta)
 {
 	if (
 		!m_HasStartedDigging ||           // Hasn't received the DIG_STARTED packet
@@ -831,8 +832,8 @@ void cClientHandle::HandleBlockDigFinished(int a_BlockX, int a_BlockY, int a_Blo
 	cWorld * World = m_Player->GetWorld();
 	ItemHandler->OnBlockDestroyed(World, m_Player, m_Player->GetEquippedItem(), a_BlockX, a_BlockY, a_BlockZ);
 	// The ItemHandler is also responsible for spawning the pickups
-	
-	BlockHandler(a_OldBlock)->OnDestroyedByPlayer(World, m_Player, a_BlockX, a_BlockY, a_BlockZ);
+	cChunkInterface ChunkInterface(World->GetChunkMap());
+	BlockHandler(a_OldBlock)->OnDestroyedByPlayer(ChunkInterface,*World, m_Player, a_BlockX, a_BlockY, a_BlockZ);
 	World->BroadcastSoundParticleEffect(2001, a_BlockX, a_BlockY, a_BlockZ, a_OldBlock, this);
 	World->DigBlock(a_BlockX, a_BlockY, a_BlockZ);
 
@@ -843,7 +844,7 @@ void cClientHandle::HandleBlockDigFinished(int a_BlockX, int a_BlockY, int a_Blo
 
 
 
-void cClientHandle::HandleRightClick(int a_BlockX, int a_BlockY, int a_BlockZ, char a_BlockFace, int a_CursorX, int a_CursorY, int a_CursorZ, const cItem & a_HeldItem)
+void cClientHandle::HandleRightClick(int a_BlockX, int a_BlockY, int a_BlockZ, eBlockFace a_BlockFace, int a_CursorX, int a_CursorY, int a_CursorZ, const cItem & a_HeldItem)
 {
 	LOGD("HandleRightClick: {%d, %d, %d}, face %d, HeldItem: %s",
 		a_BlockX, a_BlockY, a_BlockZ, a_BlockFace, ItemToFullString(a_HeldItem).c_str()
@@ -901,7 +902,8 @@ void cClientHandle::HandleRightClick(int a_BlockX, int a_BlockY, int a_BlockZ, c
 			// A plugin doesn't agree with using the block, abort
 			return;
 		}
-		BlockHandler->OnUse(World, m_Player, a_BlockX, a_BlockY, a_BlockZ, a_BlockFace, a_CursorX, a_CursorY, a_CursorZ);
+		cChunkInterface ChunkInterface(World->GetChunkMap());
+		BlockHandler->OnUse(ChunkInterface, *World, m_Player, a_BlockX, a_BlockY, a_BlockZ, a_BlockFace, a_CursorX, a_CursorY, a_CursorZ);
 		PlgMgr->CallHookPlayerUsedBlock(*m_Player, a_BlockX, a_BlockY, a_BlockZ, a_BlockFace, a_CursorX, a_CursorY, a_CursorZ, BlockType, BlockMeta);
 		return;
 	}
@@ -944,7 +946,7 @@ void cClientHandle::HandleRightClick(int a_BlockX, int a_BlockY, int a_BlockZ, c
 
 
 
-void cClientHandle::HandlePlaceBlock(int a_BlockX, int a_BlockY, int a_BlockZ, char a_BlockFace, int a_CursorX, int a_CursorY, int a_CursorZ, cItemHandler & a_ItemHandler)
+void cClientHandle::HandlePlaceBlock(int a_BlockX, int a_BlockY, int a_BlockZ, eBlockFace a_BlockFace, int a_CursorX, int a_CursorY, int a_CursorZ, cItemHandler & a_ItemHandler)
 {
 	if (a_BlockFace < 0)
 	{
@@ -1000,7 +1002,8 @@ void cClientHandle::HandlePlaceBlock(int a_BlockX, int a_BlockY, int a_BlockZ, c
 			BlockHandler(ClickedBlock)->DoesIgnoreBuildCollision(m_Player, ClickedBlockMeta)
 			)
 		{
-			BlockHandler(ClickedBlock)->OnDestroyedByPlayer(World, m_Player, a_BlockX, a_BlockY, a_BlockZ);
+			cChunkInterface ChunkInterface(World->GetChunkMap());
+			BlockHandler(ClickedBlock)->OnDestroyedByPlayer(ChunkInterface, *World, m_Player, a_BlockX, a_BlockY, a_BlockZ);
 		}
 		else
 		{
@@ -1061,7 +1064,8 @@ void cClientHandle::HandlePlaceBlock(int a_BlockX, int a_BlockY, int a_BlockZ, c
 	{
 		m_Player->GetInventory().RemoveOneEquippedItem();
 	}
-	NewBlock->OnPlacedByPlayer(World, m_Player, a_BlockX, a_BlockY, a_BlockZ, a_BlockFace, a_CursorX, a_CursorY, a_CursorZ, BlockType, BlockMeta);
+	cChunkInterface ChunkInterface(World->GetChunkMap());
+	NewBlock->OnPlacedByPlayer(ChunkInterface,*World, m_Player, a_BlockX, a_BlockY, a_BlockZ, a_BlockFace, a_CursorX, a_CursorY, a_CursorZ, BlockType, BlockMeta);
 	
 	// Step sound with 0.8f pitch is used as block placement sound
 	World->BroadcastSoundEffect(NewBlock->GetStepSound(), a_BlockX * 8, a_BlockY * 8, a_BlockZ * 8, 1.0f, 0.8f);

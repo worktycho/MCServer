@@ -380,7 +380,7 @@ AString DamageTypeToString(eDamageType a_DamageType)
 		case dtRangedAttack:    return "dtRangedAttack";
 		case dtStarving:        return "dtStarving";
 		case dtSuffocating:     return "dtSuffocation";
-
+		case dtExplosion:       return "dtExplosion";
 	}
 	
 	// Unknown damage type:
@@ -426,6 +426,7 @@ eDamageType StringToDamageType(const AString & a_DamageTypeString)
 		{ dtInVoid,          "dtInVoid"},
 		{ dtPotionOfHarming, "dtPotionOfHarming"},
 		{ dtAdmin,           "dtAdmin"},
+		{ dtExplosion,       "dtExplosion"},
 
 		// Common synonyms:
 		{ dtAttack,        "dtPawnAttack"},
@@ -793,6 +794,7 @@ public:
 		g_BlockIsSolid[E_BLOCK_WOODEN_SLAB]           = false;
 
 		// Torch placeable blocks:
+		g_BlockFullyOccupiesVoxel[E_BLOCK_NEW_LOG]               = true;
 		g_BlockFullyOccupiesVoxel[E_BLOCK_BEDROCK]               = true;
 		g_BlockFullyOccupiesVoxel[E_BLOCK_BLOCK_OF_COAL]         = true;
 		g_BlockFullyOccupiesVoxel[E_BLOCK_BLOCK_OF_REDSTONE]     = true;

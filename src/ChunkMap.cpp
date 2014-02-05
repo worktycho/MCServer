@@ -15,6 +15,9 @@
 #include "Blocks/BlockHandler.h"
 #include "MobCensus.h"
 #include "MobSpawner.h"
+#include "BoundingBox.h"
+
+#include "Entities/Pickup.h"
 
 #ifndef _WIN32
 	#include <cstdlib> // abs
@@ -1117,6 +1120,21 @@ void cChunkMap::CollectPickupsByPlayer(cPlayer * a_Player)
 
 BLOCKTYPE cChunkMap::GetBlock(int a_BlockX, int a_BlockY, int a_BlockZ)
 {
+	// First check if it isn't queued in the m_FastSetBlockQueue:
+	{
+		int X = a_BlockX, Y = a_BlockY, Z = a_BlockZ;
+		int ChunkX, ChunkY, ChunkZ;
+		cChunkDef::AbsoluteToRelative(X, Y, Z, ChunkX, ChunkZ);
+		ChunkY = 0;
+		cCSLock Lock(m_CSFastSetBlock);
+		for (sSetBlockList::iterator itr = m_FastSetBlockQueue.begin(); itr != m_FastSetBlockQueue.end(); ++itr)
+		{
+			if ((itr->x == X) && (itr->y == Y) && (itr->z == Z) && (itr->ChunkX == ChunkX) && (itr->ChunkZ == ChunkZ))
+			{
+				return itr->BlockType;
+			}
+		}  // for itr - m_FastSetBlockQueue[]
+	}
 	int ChunkX, ChunkZ;
 	cChunkDef::AbsoluteToRelative(a_BlockX, a_BlockY, a_BlockZ, ChunkX, ChunkZ );
 	
@@ -1135,6 +1153,17 @@ BLOCKTYPE cChunkMap::GetBlock(int a_BlockX, int a_BlockY, int a_BlockZ)
 
 NIBBLETYPE cChunkMap::GetBlockMeta(int a_BlockX, int a_BlockY, int a_BlockZ)
 {
+	// First check if it isn't queued in the m_FastSetBlockQueue:
+	{
+		cCSLock Lock(m_CSFastSetBlock);
+		for (sSetBlockList::iterator itr = m_FastSetBlockQueue.begin(); itr != m_FastSetBlockQueue.end(); ++itr)
+		{
+			if ((itr->x == a_BlockX) && (itr->y == a_BlockY) && (itr->z == a_BlockZ))
+			{
+				return itr->BlockMeta;
+			}
+		}  // for itr - m_FastSetBlockQueue[]
+	}
 	int ChunkX, ChunkZ;
 	cChunkDef::AbsoluteToRelative(a_BlockX, a_BlockY, a_BlockZ, ChunkX, ChunkZ );
 	
@@ -1207,8 +1236,14 @@ void cChunkMap::SetBlockMeta(int a_BlockX, int a_BlockY, int a_BlockZ, NIBBLETYP
 
 
 
-void cChunkMap::SetBlock(int a_BlockX, int a_BlockY, int a_BlockZ, BLOCKTYPE a_BlockType, BLOCKTYPE a_BlockMeta)
+void cChunkMap::SetBlock(cWorldInterface & a_WorldInterface, int a_BlockX, int a_BlockY, int a_BlockZ, BLOCKTYPE a_BlockType, BLOCKTYPE a_BlockMeta)
 {
+	cChunkInterface ChunkInterface(this);
+	if (a_BlockType == E_BLOCK_AIR)
+	{
+		BlockHandler(GetBlock(a_BlockX, a_BlockY, a_BlockZ))->OnDestroyed(ChunkInterface, a_WorldInterface, a_BlockX, a_BlockY, a_BlockZ);
+	}
+
 	int ChunkX, ChunkZ, X = a_BlockX, Y = a_BlockY, Z = a_BlockZ;
 	cChunkDef::AbsoluteToRelative( X, Y, Z, ChunkX, ChunkZ );
 
@@ -1219,6 +1254,7 @@ void cChunkMap::SetBlock(int a_BlockX, int a_BlockY, int a_BlockZ, BLOCKTYPE a_B
 		Chunk->SetBlock(X, Y, Z, a_BlockType, a_BlockMeta );
 		m_World->GetSimulatorManager()->WakeUp(a_BlockX, a_BlockY, a_BlockZ, Chunk);
 	}
+	BlockHandler(a_BlockType)->OnPlaced(ChunkInterface, a_WorldInterface, a_BlockX, a_BlockY, a_BlockZ, a_BlockType, a_BlockMeta);
 }
 
 
@@ -1624,49 +1660,52 @@ void cChunkMap::DoExplosionAt(double a_ExplosionSize, double a_BlockX, double a_
 	{
 		return;
 	}
-	
+
+	bool ShouldDestroyBlocks = true;
+
 	// Don't explode if the explosion center is inside a liquid block:
-	switch (m_World->GetBlock((int)floor(a_BlockX), (int)floor(a_BlockY), (int)floor(a_BlockZ)))
+	if (IsBlockLiquid(m_World->GetBlock((int)floor(a_BlockX), (int)floor(a_BlockY), (int)floor(a_BlockZ))))
 	{
-		case E_BLOCK_WATER:
-		case E_BLOCK_STATIONARY_WATER:
-		case E_BLOCK_LAVA:
-		case E_BLOCK_STATIONARY_LAVA:
-		{
-			return;
-		}
+		ShouldDestroyBlocks = false;
 	}
-	
-	cBlockArea area;
+
+	int ExplosionSizeInt = (int)ceil(a_ExplosionSize);
+	int ExplosionSizeSq = ExplosionSizeInt * ExplosionSizeInt;
+
 	int bx = (int)floor(a_BlockX);
 	int by = (int)floor(a_BlockY);
 	int bz = (int)floor(a_BlockZ);
-	int ExplosionSizeInt = (int) ceil(a_ExplosionSize);
-	int ExplosionSizeSq =  ExplosionSizeInt * ExplosionSizeInt;
-	a_BlocksAffected.reserve(8 * ExplosionSizeInt * ExplosionSizeInt * ExplosionSizeInt);
+
 	int MinY = std::max((int)floor(a_BlockY - ExplosionSizeInt), 0);
 	int MaxY = std::min((int)ceil(a_BlockY + ExplosionSizeInt), cChunkDef::Height - 1);
-	area.Read(m_World, bx - ExplosionSizeInt, (int)ceil(a_BlockX + ExplosionSizeInt), MinY, MaxY, bz - ExplosionSizeInt, (int)ceil(a_BlockZ + ExplosionSizeInt));
-	for (int x = -ExplosionSizeInt; x < ExplosionSizeInt; x++)
+
+	if (ShouldDestroyBlocks)
 	{
-		for (int y = -ExplosionSizeInt; y < ExplosionSizeInt; y++)
+		cBlockArea area;
+
+		a_BlocksAffected.reserve(8 * ExplosionSizeInt * ExplosionSizeInt * ExplosionSizeInt);
+
+		area.Read(m_World, bx - ExplosionSizeInt, (int)ceil(a_BlockX + ExplosionSizeInt), MinY, MaxY, bz - ExplosionSizeInt, (int)ceil(a_BlockZ + ExplosionSizeInt));
+		for (int x = -ExplosionSizeInt; x < ExplosionSizeInt; x++)
 		{
-			if ((by + y >= cChunkDef::Height) || (by + y < 0))
+			for (int y = -ExplosionSizeInt; y < ExplosionSizeInt; y++)
 			{
-				// Outside of the world
-				continue;
-			}
-			for (int z = -ExplosionSizeInt; z < ExplosionSizeInt; z++)
-			{
-				if ((x * x + y * y + z * z) > ExplosionSizeSq)
+				if ((by + y >= cChunkDef::Height) || (by + y < 0))
 				{
-					// Too far away
+					// Outside of the world
 					continue;
 				}
-
-				BLOCKTYPE Block = area.GetBlockType(bx + x, by + y, bz + z);
-				switch (Block)
+				for (int z = -ExplosionSizeInt; z < ExplosionSizeInt; z++)
 				{
+					if ((x * x + y * y + z * z) > ExplosionSizeSq)
+					{
+						// Too far away
+						continue;
+					}
+
+					BLOCKTYPE Block = area.GetBlockType(bx + x, by + y, bz + z);
+					switch (Block)
+					{
 					case E_BLOCK_TNT:
 					{
 						// Activate the TNT, with a random fuse between 10 to 30 game ticks
@@ -1691,20 +1730,20 @@ void cChunkMap::DoExplosionAt(double a_ExplosionSize, double a_BlockX, double a_
 						area.SetBlockType(bx + x, by + y, bz + z, E_BLOCK_WATER);
 						break;
 					}
-					
+
 					case E_BLOCK_STATIONARY_LAVA:
 					{
 						// Turn into simulated lava:
 						area.SetBlockType(bx + x, by + y, bz + z, E_BLOCK_LAVA);
 						break;
 					}
-					
+
 					case E_BLOCK_AIR:
 					{
 						// No pickups for air
 						break;
 					}
-					
+
 					default:
 					{
 						if (m_World->GetTickRandomNumber(100) <= 25) // 25% chance of pickups
@@ -1718,11 +1757,90 @@ void cChunkMap::DoExplosionAt(double a_ExplosionSize, double a_BlockX, double a_
 						area.SetBlockType(bx + x, by + y, bz + z, E_BLOCK_AIR);
 						a_BlocksAffected.push_back(Vector3i(bx + x, by + y, bz + z));
 					}
-				}  // switch (BlockType)
-			}  // for z
-		}  // for y
-	}  // for x
-	area.Write(m_World, bx - ExplosionSizeInt, MinY, bz - ExplosionSizeInt);
+					}  // switch (BlockType)
+				}  // for z
+			}  // for y
+		}  // for x
+		area.Write(m_World, bx - ExplosionSizeInt, MinY, bz - ExplosionSizeInt);
+	}
+
+	class cTNTDamageCallback :
+		public cEntityCallback
+	{
+	public:
+		cTNTDamageCallback(cBoundingBox & a_bbTNT, Vector3d a_ExplosionPos, int a_ExplosionSize, int a_ExplosionSizeSq) :
+			m_bbTNT(a_bbTNT),
+			m_ExplosionPos(a_ExplosionPos),
+			m_ExplosionSize(a_ExplosionSize),
+			m_ExplosionSizeSq(a_ExplosionSizeSq)
+		{
+		}
+
+		virtual bool Item(cEntity * a_Entity) override
+		{
+			if (a_Entity->IsPickup())
+			{
+				if (((cPickup *)a_Entity)->GetAge() < 20) // If pickup age is smaller than one second, it is invincible (so we don't kill pickups that were just spawned)
+				{
+					return false;
+				}
+			}
+
+			Vector3d EntityPos = a_Entity->GetPosition();
+			cBoundingBox bbEntity(EntityPos, a_Entity->GetWidth() / 2, a_Entity->GetHeight());
+
+			if (!m_bbTNT.IsInside(bbEntity)) // IsInside actually acts like DoesSurround
+			{
+				return false;
+			}
+			
+			Vector3d AbsoluteEntityPos(abs(EntityPos.x), abs(EntityPos.y), abs(EntityPos.z));
+			Vector3d MaxExplosionBoundary(m_ExplosionSizeSq, m_ExplosionSizeSq, m_ExplosionSizeSq);
+
+			// Work out how far we are from the edge of the TNT's explosive effect
+			AbsoluteEntityPos -= m_ExplosionPos;
+			AbsoluteEntityPos = MaxExplosionBoundary - AbsoluteEntityPos;
+
+			double FinalDamage = ((AbsoluteEntityPos.x + AbsoluteEntityPos.y + AbsoluteEntityPos.z) / 3) * m_ExplosionSize;
+			FinalDamage = a_Entity->GetMaxHealth() - abs(FinalDamage);
+
+			// Clip damage values
+			if (FinalDamage > a_Entity->GetMaxHealth())
+				FinalDamage = a_Entity->GetMaxHealth();
+			else if (FinalDamage < 0)
+				FinalDamage = 0;
+
+			if (!a_Entity->IsTNT()) // Don't apply damage to other TNT entities, they should be invincible
+			{
+				a_Entity->TakeDamage(dtExplosion, NULL, (int)FinalDamage, 0);
+			}
+
+			// Apply force to entities around the explosion - code modified from World.cpp DoExplosionAt()
+			Vector3d distance_explosion = a_Entity->GetPosition() - m_ExplosionPos;
+			if (distance_explosion.SqrLength() < 4096.0)
+			{
+				distance_explosion.Normalize();
+				distance_explosion *= m_ExplosionSizeSq;
+
+				a_Entity->AddSpeed(distance_explosion);
+			}
+			
+			return false;
+		}
+
+	protected:
+		cBoundingBox & m_bbTNT;
+		Vector3d m_ExplosionPos;
+		int m_ExplosionSize;
+		int m_ExplosionSizeSq;
+	};
+
+	cBoundingBox bbTNT(Vector3d(a_BlockX, a_BlockY, a_BlockZ), 0.5, 1);
+	bbTNT.Expand(ExplosionSizeInt * 2, ExplosionSizeInt * 2, ExplosionSizeInt * 2);
+
+
+	cTNTDamageCallback TNTDamageCallback(bbTNT, Vector3d(a_BlockX, a_BlockY, a_BlockZ), a_ExplosionSize, ExplosionSizeSq);
+	ForEachEntity(TNTDamageCallback);
 
 	// Wake up all simulators for the area, so that water and lava flows and sand falls into the blasted holes (FS #391):
 	WakeUpSimulatorsInArea(
@@ -2692,6 +2810,28 @@ void cChunkMap::cChunkLayer::UnloadUnusedChunks(void)
 
 
 
+void cChunkMap::FastSetBlock(int a_X, int a_Y, int a_Z, BLOCKTYPE a_BlockType, NIBBLETYPE a_BlockMeta)
+{
+	cCSLock Lock(m_CSFastSetBlock);
+	m_FastSetBlockQueue.push_back(sSetBlock(a_X, a_Y, a_Z, a_BlockType, a_BlockMeta)); 
+}
+
+void cChunkMap::FastSetQueuedBlocks()
+{
+	// Asynchronously set blocks:
+	sSetBlockList FastSetBlockQueueCopy;
+	{
+		cCSLock Lock(m_CSFastSetBlock);
+		std::swap(FastSetBlockQueueCopy, m_FastSetBlockQueue);
+	}
+	this->FastSetBlocks(FastSetBlockQueueCopy);
+	if (!FastSetBlockQueueCopy.empty())
+	{
+		// Some blocks failed, store them for next tick:
+		cCSLock Lock(m_CSFastSetBlock);
+		m_FastSetBlockQueue.splice(m_FastSetBlockQueue.end(), FastSetBlockQueueCopy);
+	}
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2798,7 +2938,6 @@ void cChunkStay::Disable(void)
 	m_World->ChunksStay(*this, false);
 	m_IsEnabled = false;
 }
-
 
 
 
