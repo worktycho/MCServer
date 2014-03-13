@@ -96,9 +96,9 @@ to your cmake command and 32 bit will be forced.
 ### Compiling for another computer ###
 
 
-When cross-compiling for another computer it is important to set cross compiling mode. This tells the compiler not to optimise for your machine. This switch can be used with debug or release mode. To enable, simply add:
+When compiling for another computer it is important to disable native optimisations. This switch can be used with debug or release mode. To disable, simply add:
 
-    -DCROSSCOMPILE=1
+    -DNO_NATIVE_OPTIMISATIONS=1
 
 to your cmake command.
 
