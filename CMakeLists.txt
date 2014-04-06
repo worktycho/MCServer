@@ -14,6 +14,10 @@ if(DEFINED ENV{TRAVIS_MCSERVER_FORCE32})
 	set(FORCE32 $ENV{TRAVIS_MCSERVER_FORCE32})
 endif()
 
+if(DEFINED ANDROID_BUILD)
+	add_definitions(-DANDROID_NDK)
+endif()
+
 # This has to be done before any flags have been set up.
 if(${BUILD_TOOLS})
 	add_subdirectory(Tools/MCADefrag/)

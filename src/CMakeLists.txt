@@ -5,12 +5,21 @@ include_directories (SYSTEM "${PROJECT_SOURCE_DIR}/../lib/")
 include_directories (SYSTEM "${PROJECT_SOURCE_DIR}/../lib/jsoncpp/include")
 include_directories (SYSTEM "${PROJECT_SOURCE_DIR}/../lib/polarssl/include")
 
+if(ANDROID_BUILD)
+	include_directories (SYSTEM "${PROJECT_SOURCE_DIR}/../Android/jni/")
+endif()
+
 set(FOLDERS OSSupport HTTPServer Items Blocks Protocol Generating) 
 set(FOLDERS ${FOLDERS} WorldStorage Mobs Entities Simulator UI BlockEntities Generating/Prefabs)
 
 
 if (NOT MSVC)
 
+	if(CMAKE_CROSSCOMPILING OR FORCE_CROSSCOMPILING)
+		set(IMPORT_EXECUTABLES "IMPORTFILE-NOTFOUND" CACHE FILEPATH "Point it to the export file from a native build")
+  		include(${IMPORT_EXECUTABLES})
+	endif()
+	
 	# Bindings need to reference other folders, so they are done here instead
 	
 	# lib dependencies are not included
@@ -199,9 +208,11 @@ else ()
 endif()
 
 set(EXECUTABLE MCServer)
-
-add_executable(${EXECUTABLE} ${SOURCE})
-
+if(ANDROID_BUILD)
+	add_library(${EXECUTABLE} SHARED ${SOURCE})
+else()
+	add_executable(${EXECUTABLE} ${SOURCE})
+endif()
 
 # Output the executable into the $/MCServer folder, so that it has access to external resources:
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/MCServer)
@@ -212,14 +223,14 @@ SET_TARGET_PROPERTIES(${EXECUTABLE} PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY_RELEASEPROFILE ${CMAKE_SOURCE_DIR}/MCServer
 )
 
-
+if(NOT ANDROID_BUILD)
 # Make the debug executable have a "_debug" suffix
 SET_TARGET_PROPERTIES(${EXECUTABLE} PROPERTIES DEBUG_POSTFIX "_debug")
 
 # Make the profiled executables have a "_profile" postfix
 SET_TARGET_PROPERTIES(${EXECUTABLE} PROPERTIES DEBUGPROFILE_POSTFIX "_debug_profile")
 SET_TARGET_PROPERTIES(${EXECUTABLE} PROPERTIES RELEASEPROFILE_POSTFIX "_profile")
-
+endif()
 
 # Precompiled headers (2nd part)
 if (MSVC)

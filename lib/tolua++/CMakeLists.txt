@@ -43,7 +43,7 @@ file(GLOB BIN_SOURCE
 add_library(tolualib ${LIB_SOURCE})
 
 
-if(NOT CMAKE_CROSSCOMPILING)
+if(NOT CMAKE_CROSSCOMPILING OR NOT FORCE_CROSSCOMPILING)
 	add_executable(tolua ${BIN_SOURCE})
 	
 	#m is the standard math librarys

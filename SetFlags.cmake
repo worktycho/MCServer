@@ -48,7 +48,9 @@ macro(set_flags)
 		else()
 			add_flags_cxx("-pthread")
 		endif()
-
+		
+	elseif(ANDROID_BUILD)
+		add_flags_lnk("-llog")
 	else()
 		# Let gcc / clang know that we're compiling a multi-threaded app:
 		add_flags_cxx("-pthread")

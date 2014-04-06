@@ -9,6 +9,6 @@ file(GLOB SOURCE
 
 add_library(OSSupport ${SOURCE})
 
-if(UNIX)
+if(UNIX AND NOT ANDROID_BUILD)
 	target_link_libraries(OSSupport pthread)
 endif()
