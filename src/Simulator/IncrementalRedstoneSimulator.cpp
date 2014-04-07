@@ -1237,15 +1237,15 @@ bool cIncrementalRedstoneSimulator::IsRepeaterLocked(int a_BlockX, int a_BlockY,
 			case 0x2:
 			{
 				if (
-					itr->a_SourcePos.Equals(Vector3i(a_BlockX + 1, a_BlockY, a_BlockZ))
-					&& m_World.GetBlock(a_BlockX + 1, a_BlockY, a_BlockZ) == E_BLOCK_REDSTONE_REPEATER_ON
+					itr->a_SourcePos.Equals(Vector3i(a_BlockX + 1, a_BlockY, a_BlockZ)) &&
+					(m_World.GetBlock(a_BlockX + 1, a_BlockY, a_BlockZ) == E_BLOCK_REDSTONE_REPEATER_ON)
 				) 
 				{
 					return true;
 				}
 				if (
-					itr->a_SourcePos.Equals(Vector3i(a_BlockX - 1, a_BlockY, a_BlockZ))
-					&& m_World.GetBlock(a_BlockX - 1, a_BlockY, a_BlockZ) == E_BLOCK_REDSTONE_REPEATER_ON
+					itr->a_SourcePos.Equals(Vector3i(a_BlockX - 1, a_BlockY, a_BlockZ)) &&
+					(m_World.GetBlock(a_BlockX - 1, a_BlockY, a_BlockZ) == E_BLOCK_REDSTONE_REPEATER_ON)
 				) 
 				{
 					return true;
@@ -1257,15 +1257,15 @@ bool cIncrementalRedstoneSimulator::IsRepeaterLocked(int a_BlockX, int a_BlockY,
 			case 0x3:
 			{
 				if (
-					itr->a_SourcePos.Equals(Vector3i(a_BlockX, a_BlockY, a_BlockZ + 1))
-					&& m_World.GetBlock(a_BlockX, a_BlockY, a_BlockZ + 1) == E_BLOCK_REDSTONE_REPEATER_ON
+					itr->a_SourcePos.Equals(Vector3i(a_BlockX, a_BlockY, a_BlockZ + 1)) &&
+					(m_World.GetBlock(a_BlockX, a_BlockY, a_BlockZ + 1) == E_BLOCK_REDSTONE_REPEATER_ON)
 				) 
 				{
 					return true;
 				}
 				if (
-					itr->a_SourcePos.Equals(Vector3i(a_BlockX, a_BlockY, a_BlockZ - 1))
-					&& m_World.GetBlock(a_BlockX, a_BlockY, a_BlockZ - 1) == E_BLOCK_REDSTONE_REPEATER_ON
+					itr->a_SourcePos.Equals(Vector3i(a_BlockX, a_BlockY, a_BlockZ - 1)) &&
+					(m_World.GetBlock(a_BlockX, a_BlockY, a_BlockZ - 1) == E_BLOCK_REDSTONE_REPEATER_ON)
 				) 
 				{
 					return true;
