@@ -685,17 +685,19 @@ void cIncrementalRedstoneSimulator::HandleRedstoneRepeater(int a_BlockX, int a_B
 {
 	NIBBLETYPE a_Meta = m_World.GetBlockMeta(a_BlockX, a_BlockY, a_BlockZ);
 
-	bool IsOn = ((a_MyState == E_BLOCK_REDSTONE_REPEATER_ON) ? true : false); // Cache if repeater is on.
-	bool IsSelfPowered = IsRepeaterPowered(a_BlockX, a_BlockY, a_BlockZ, a_Meta & 0x3); // Cache if repeater is powered.
-	bool IsLocked = IsRepeaterLocked(a_BlockX, a_BlockY, a_BlockZ, a_Meta & 0x3); // Cache if repeater is locked.
+	if (!IsRepeaterLocked(a_BlockX, a_BlockY, a_BlockZ, a_Meta & 0x3))
+	{
+		bool IsOn = ((a_MyState == E_BLOCK_REDSTONE_REPEATER_ON) ? true : false); // Cache if repeater is on.
+		bool IsSelfPowered = IsRepeaterPowered(a_BlockX, a_BlockY, a_BlockZ, a_Meta & 0x3); // Cache if repeater is powered.
 
-	if (IsSelfPowered && !IsOn && !IsLocked) // Queue a power change if powered, but not on and not locked.
-	{
-		QueueRepeaterPowerChange(a_BlockX, a_BlockY, a_BlockZ, a_Meta, true);
-	}
-	else if (!IsSelfPowered && IsOn && !IsLocked) // Queue a power change if unpowered, on, and not locked.
-	{
-		QueueRepeaterPowerChange(a_BlockX, a_BlockY, a_BlockZ, a_Meta, false);
+		if (IsSelfPowered && !IsOn) // Queue a power change if powered, but not on.
+		{
+			QueueRepeaterPowerChange(a_BlockX, a_BlockY, a_BlockZ, a_Meta, true);
+		}
+		else if (!IsSelfPowered && IsOn) // Queue a power change if unpowered and on.
+		{
+			QueueRepeaterPowerChange(a_BlockX, a_BlockY, a_BlockZ, a_Meta, false);
+		}
 	}
 
 	for (RepeatersDelayList::iterator itr = m_RepeatersDelayList->begin(); itr != m_RepeatersDelayList->end(); ++itr)
@@ -1234,16 +1236,40 @@ bool cIncrementalRedstoneSimulator::IsRepeaterLocked(int a_BlockX, int a_BlockY,
 			case 0x0:
 			case 0x2:
 			{
-				if (itr->a_SourcePos.Equals(Vector3i(a_BlockX + 1, a_BlockY, a_BlockZ))) { return true; }
-				if (itr->a_SourcePos.Equals(Vector3i(a_BlockX - 1, a_BlockY, a_BlockZ))) { return true; }
+				if (
+					itr->a_SourcePos.Equals(Vector3i(a_BlockX + 1, a_BlockY, a_BlockZ))
+					&& m_World.GetBlock(a_BlockX + 1, a_BlockY, a_BlockZ) == E_BLOCK_REDSTONE_REPEATER_ON
+				) 
+				{
+					return true;
+				}
+				if (
+					itr->a_SourcePos.Equals(Vector3i(a_BlockX - 1, a_BlockY, a_BlockZ))
+					&& m_World.GetBlock(a_BlockX - 1, a_BlockY, a_BlockZ) == E_BLOCK_REDSTONE_REPEATER_ON
+				) 
+				{
+					return true;
+				}
 				break;
 			}
 			// If E/W check N/S
 			case 0x1:
 			case 0x3:
 			{
-				if (itr->a_SourcePos.Equals(Vector3i(a_BlockX, a_BlockY, a_BlockZ + 1))) { return true; }
-				if (itr->a_SourcePos.Equals(Vector3i(a_BlockX, a_BlockY, a_BlockZ - 1))) { return true; }
+				if (
+					itr->a_SourcePos.Equals(Vector3i(a_BlockX, a_BlockY, a_BlockZ + 1))
+					&& m_World.GetBlock(a_BlockX, a_BlockY, a_BlockZ + 1) == E_BLOCK_REDSTONE_REPEATER_ON
+				) 
+				{
+					return true;
+				}
+				if (
+					itr->a_SourcePos.Equals(Vector3i(a_BlockX, a_BlockY, a_BlockZ - 1))
+					&& m_World.GetBlock(a_BlockX, a_BlockY, a_BlockZ - 1) == E_BLOCK_REDSTONE_REPEATER_ON
+				) 
+				{
+					return true;
+				}
 				break;
 			}
 		}
