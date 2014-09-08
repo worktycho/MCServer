@@ -1,8 +1,5 @@
-/*
  /*I AM JUST PLAYING AROUND WITH SOME PSEUDO-CODE, DO NOT USE
- * THIS BRANCH FOR ANYTHING WHATSOEVER, IT PROBABLY DOES NOT EVEN COMPILE*/
-
-
+ * THIS BRANCH FOR ANYTHING WHATSOEVER, IT PROBABLY DOES NOT EVEN COMPILE YET*/
 
 /* pathfinding.cpp
  *
@@ -14,6 +11,23 @@
  *
  */
 
+#include "pathfinding.h"
 
 
+typedef struct
+{
+double x;
+double y;
+double z;
+bool passable;
+path_point next_point;
+} path_point_t;
 
+path_point find_path(
+int start_x, int start_y, int start_z,
+int end_x, int end_y, int end_z,
+double mob_width, double mob_height
+)
+{
+	return NULL;
+}
