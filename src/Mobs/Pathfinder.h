@@ -15,7 +15,7 @@ Better comments
 
 
 
-/* Calculates paths using a* and spits them out as cPath instances. */
+/* Calculates paths using a*. */
 
 #pragma once
 #include "Globals.h"
@@ -43,10 +43,13 @@ cPathfinder(double a_boundingBoxWidth, double a_boundingBoxHeight,
 
 /** Creates a path using a*, takes bounding boxes into account
 
-An exception (TODO) will be thrown if a_startPoint is outside an imaginry
+An exception/error (TODO) will be thrown if a_startPoint is outside an imaginry
 cube which has an edge the size of maxDistance and its origin is at a_endingPoint.
 */
 int CreatePath(std::vector<Vector3d> & my_path, const Vector3d & a_startPoint, const Vector3d & a_endingPoint);
+
+
+
 
 /*
 TODO: The current interface calculates the path immediately, could this cause blocking?
@@ -54,7 +57,8 @@ TODO: The current interface calculates the path immediately, could this cause bl
 Do we need the following function:
 
 Calculates some of the path, returns true when the path is ready
-The contents of my_path will only change when this function returns true
+Return false if path is not ready or if CreatePath was never called
+The contents of my_path will only change when this function switches from false to true.
 bool Run();
 
 If we need this -
