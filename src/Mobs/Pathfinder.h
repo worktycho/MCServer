@@ -56,7 +56,7 @@ cPath & createPath(const Vector3d & a_startPoint, const Vector3d & a_endingPoint
 
 
 
-/* just like createPath, but overrides an existing path. Saves memory allocations!*/
+/** just like createPath, but overrides an existing path. Saves memory allocations!*/
 cPath & updatePath(const Vector3d & a_path, const Vector3d & a_currentPoint, const Vector3d & a_endingPoint, bool a_guesswork);
 };
 

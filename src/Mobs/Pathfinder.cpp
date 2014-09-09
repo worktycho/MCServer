@@ -6,6 +6,10 @@ cPathfinder::cPathfinder(double boundingBoxWidth, double boundingBoxHeight,
 
 }
 
+
+
+
+
 cPath & cPathfinder::createPath(const Vector3d & a_currentPoint, const Vector3d & a_endingPoint, bool a_guesswork)
 {
 	return new cPath();
