@@ -43,7 +43,7 @@ public:
 	maxDistance - The maximum distance allowed for the Pathfinder.
 	*/
 	cPathfinder(double a_boundingBoxWidth, double a_boundingBoxHeight,
-			int a_maxUp, int a_maxDown, int a_maxDistance);
+	int a_maxUp, int a_maxDown, int a_maxDistance);
 
 
 
@@ -58,7 +58,8 @@ public:
 	An exception/error (TODO) will be thrown if a_startPoint is outside an imaginry
 	cube which has an edge the size of maxDistance and its origin is at a_endingPoint.
 	*/
-	int FindPath(cPath & a_resultPath, const Vector3d & a_startPoint, const Vector3d & a_endingPoint);
+	int FindPath(cPath & a_resultPath, const Vector3d & a_startPoint,
+	const Vector3d & a_endingPoint);
 
 
 
