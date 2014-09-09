@@ -10,8 +10,9 @@
 
 
 /*TODO
- * Get feedback regarding header before implementing
+ * Get feedback regarding header before implementing <
  * Modify the header to follow the project's code conventions
+ * Better comments
  * */
 
 
@@ -30,7 +31,11 @@ cPathfinder(double a_boundingBoxWidth, double a_boundingBoxHeight,
  *  rarely changing parameters each call*/
 
 
+/* Creates a path using a*, takes bounding boxes into account*/
 cPath & createPath(const Vector3d & a_currentPoint, const Vector3d & a_endingPoint, bool a_guesswork);
+
+/* just like createPath, but overrides an existing path. Saves memory allocations!*/
+cPath & updatePath(const Vector3d & a_path, const Vector3d & a_currentPoint, const Vector3d & a_endingPoint, bool a_guesswork);
 
 
 
