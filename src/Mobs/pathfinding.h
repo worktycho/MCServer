@@ -19,8 +19,7 @@
  * */
 
 
-#ifndef PATHFINDING_H_
-#define PATHFINDING_H_
+#pragma once
 
 class cPathfinder
 {
@@ -41,14 +40,14 @@ cPathfinder(double boundingBoxWidth, double boundingBoxHeight,
 
 
 /*Typical usage: (Pseudocode)
- * Cmonster::MoveToPosition(myPathfinder.getNextPathPoint(my_position,player_position));
+ * Cmonster::MoveToPosition(myPathfinder.getPathPoint(my_position,player_position));
  *
  * Note that this function does not necessarily calculate a new path: If the mob is
  * far enough a new path will only be re-calculated once every many calls.
  * Therefore, it is safe to call this every tick
  * (or better: everytime the mob reaches the point returned by the previous getPathPoint)
  *
- * If a path is not calculated yet (typically on first call), the returned value will be
+ * If a path is not calculated yet (typically happens on first call), the returned value will be
  * determined by the variable "guesswork":
  * If false: currentPoint will be returned, effectively freezing the mob until the path is calculated.
  * If true: The returned points will make the mob movein a dumb straight path
@@ -59,4 +58,4 @@ const Vector3d & getPathPoint(const Vector3d & currentPoint, const Vector3d & en
 
 
 };
-#endif /* PATHFINDING_H_ */
+

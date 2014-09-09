@@ -13,22 +13,3 @@
  */
 
 #include "pathfinding.h"
-
-
-typedef struct
-{
-double x;
-double y;
-double z;
-bool passable;
-path_point next_point;
-} path_point_t;
-
-path_point find_path(
-int start_x, int start_y, int start_z,
-int end_x, int end_y, int end_z,
-double mob_width, double mob_height
-)
-{
-	return NULL;
-}
