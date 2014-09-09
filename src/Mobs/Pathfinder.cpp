@@ -12,4 +12,4 @@
  *
  */
 
-#include "pathfinder.h"
+#include "Pathfinder.h"
