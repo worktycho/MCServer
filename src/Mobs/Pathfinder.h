@@ -31,8 +31,8 @@ class cPathfinder
  * When calling moveToByPath, an exception (TODO) will be thrown if startingPoint
  * is outside an imaginry cube which has an edge the size of maxDistance and its
  * origin is at endingPoint */
-cPathfinder(double boundingBoxWidth, double boundingBoxHeight,
-		int maxUp,int maxDown , int maxDistance);
+cPathfinder(double a_boundingBoxWidth, double a_boundingBoxHeight,
+		int a_maxUp,int a_maxDown , int a_maxDistance);
 
 
 /*Typical usage: (Pseudocode)
@@ -56,7 +56,7 @@ cPathfinder(double boundingBoxWidth, double boundingBoxHeight,
  * If true: The returned points will make the mob move in a dumb straight path
  * towards the target until the path is calculated.
  * */
-const Vector3d & getPathPoint(const Vector3d & currentPoint, const Vector3d & endingPoint, bool guesswork);
+const Vector3d & getPathPoint(const Vector3d & a_currentPoint, const Vector3d & a_endingPoint, bool guesswork);
 
 
 
