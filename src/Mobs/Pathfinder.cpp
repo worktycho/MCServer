@@ -8,8 +8,6 @@
  *
  */
 
-//TODO CMakeLists
-
 #include "Pathfinder.h"
 
 cPathfinder::cPathfinder(double boundingBoxWidth, double boundingBoxHeight,
