@@ -27,8 +27,8 @@ class cPath
 	const Vector3d & getPreviousPoint();
 	const Vector3d & getLastPoint();
 
-	const Vector3d & setFirstPoint();
-	const Vector3d & setNextPoint();
+	void setFirstPoint(const Vector3d & a_point);
+	void setNextPoint(const Vector3d & a_point);
 
 
 	private:

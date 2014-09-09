@@ -25,31 +25,38 @@
 class cPathfinder
 {
 
-/*
-* boundingBoxWidth - The bounding box width of the mob wishing to use this Pathfinder
-* boundingBoxHeight - The bounding box height of the mob wishing to use this Pathfinder
-* maxUp - How many vertical blocks can this mob move upwards?
-* 		(e.g. Silverfish: 0, Zombie: 1, Spider: ~20)
-* maxDown - How many vertical blocks can this mob move downwards?
-* 		(e.g. Silverfish: 1, Zombie: 1, Spider: ~3?)
-* maxDistance - The maximum distance allowed for the Pathfinder
-* When calling moveToByPath, an exception (TODO) will be thrown if startingPoint
-* is outside an imaginry cube which has an edge the size of maxDistance and its
-* origin is at endingPoint */
+/** Creates a new Pathfinder
+
+boundingBoxWidth - The bounding box width of the mob wishing to use this Pathfinder
+boundingBoxHeight - The bounding box height of the mob wishing to use this Pathfinder
+maxUp - How many vertical blocks can this mob move upwards?
+ 		(e.g. Silverfish: 0, Zombie: 1, Spider: ~20)
+maxDown - How many vertical blocks can this mob move downwards?
+ 		(e.g. Silverfish: 1, Zombie: 1, Spider: ~3?)
+maxDistance - The maximum distance allowed for the Pathfinder
+
+When calling moveToByPath, an
+*/
 cPathfinder(double a_boundingBoxWidth, double a_boundingBoxHeight,
 		int a_maxUp,int a_maxDown , int a_maxDistance);
-/*I could make the cPathfinder a static class, but then we'll have to forward the above
- *  rarely changing parameters each call*/
 
 
-/* Creates a path using a*, takes bounding boxes into account*/
-cPath & createPath(const Vector3d & a_currentPoint, const Vector3d & a_endingPoint, bool a_guesswork);
+
+
+
+
+/** Creates a path using a*, takes bounding boxes into account
+
+An exception (TODO) will be thrown if a_startPoint is outside an imaginry
+cube which has an edge the size of maxDistance and its origin is at endingPoint.
+*/
+cPath & createPath(const Vector3d & a_startPoint, const Vector3d & a_endingPoint, bool a_guesswork);
+
+
+
+
 
 /* just like createPath, but overrides an existing path. Saves memory allocations!*/
 cPath & updatePath(const Vector3d & a_path, const Vector3d & a_currentPoint, const Vector3d & a_endingPoint, bool a_guesswork);
-
-
-
-
 };
 
