@@ -1,7 +1,3 @@
- /*I AM JUST PLAYING AROUND WITH SOMECODE, DO NOT USE
- * THIS BRANCH FOR ANYTHING WHATSOEVER YET
- * IT PROBABLY DOES NOT EVEN COMPILE*/
-
 /* pathfinding.cpp
  *
  *  Created on: Sep 8, 2014
@@ -47,7 +43,7 @@ cPathfinder(double boundingBoxWidth, double boundingBoxHeight,
  *
  * If the path is not calculated yet, calculates some of the path.
  * The function will not calculate the entire path in a single call
- * to prevent blocking.
+ * in order to prevent blocking.
  *
  * Note that this function does not necessarily calculate a new path: If the mob is
  * far enough a new path will only be re-calculated once every many calls.
@@ -57,7 +53,7 @@ cPathfinder(double boundingBoxWidth, double boundingBoxHeight,
  * If a path is not calculated yet (typically happens on the first few calls), the returned value will be
  * determined by the variable "guesswork":
  * If false: currentPoint will be returned, effectively freezing the mob until the path is calculated.
- * If true: The returned points will make the mob movein a dumb straight path
+ * If true: The returned points will make the mob move in a dumb straight path
  * towards the target until the path is calculated.
  * */
 const Vector3d & getPathPoint(const Vector3d & currentPoint, const Vector3d & endingPoint, bool guesswork);

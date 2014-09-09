@@ -1,7 +1,3 @@
- /*I AM JUST PLAYING AROUND WITH SOMECODE, DO NOT USE
- * THIS BRANCH FOR ANYTHING WHATSOEVER YET
- * IT PROBABLY DOES NOT EVEN COMPILE*/
-
 /* pathfinding.cpp
  *
  *  Created on: Sep 8, 2014
@@ -13,3 +9,14 @@
  */
 
 #include "Pathfinder.h"
+
+cPathfinder::cPathfinder(double boundingBoxWidth, double boundingBoxHeight,
+		int maxUp,int maxDown , int maxDistance)
+{
+
+}
+
+const Vector3d & getPathPoint(const Vector3d & currentPoint, const Vector3d & endingPoint, bool guesswork)
+{
+	return new const Vector3d(0,0,0);
+}
