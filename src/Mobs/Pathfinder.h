@@ -58,7 +58,7 @@ allocations.
 An exception/error (TODO) will be thrown if a_startPoint is outside an imaginry
 cube which has an edge the size of maxDistance and its origin is at a_endingPoint.
 */
-int FindPath(cPath & resultPath, const Vector3d & a_startPoint, const Vector3d & a_endingPoint);
+int FindPath(cPath & a_resultPath, const Vector3d & a_startPoint, const Vector3d & a_endingPoint);
 
 
 
