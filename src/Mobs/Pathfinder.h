@@ -25,7 +25,17 @@
 class cPathfinder
 {
 
-
+/*
+* boundingBoxWidth - The bounding box width of the mob wishing to use this Pathfinder
+* boundingBoxHeight - The bounding box height of the mob wishing to use this Pathfinder
+* maxUp - How many vertical blocks can this mob move upwards?
+* 		(e.g. Silverfish: 0, Zombie: 1, Spider: ~20)
+* maxDown - How many vertical blocks can this mob move downwards?
+* 		(e.g. Silverfish: 1, Zombie: 1, Spider: ~3?)
+* maxDistance - The maximum distance allowed for the Pathfinder
+* When calling moveToByPath, an exception (TODO) will be thrown if startingPoint
+* is outside an imaginry cube which has an edge the size of maxDistance and its
+* origin is at endingPoint */
 cPathfinder(double a_boundingBoxWidth, double a_boundingBoxHeight,
 		int a_maxUp,int a_maxDown , int a_maxDistance);
 /*I could make the cPathfinder a static class, but then we'll have to forward the above
