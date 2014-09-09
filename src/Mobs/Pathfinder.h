@@ -65,6 +65,10 @@ If we need this -
 TODO: Handling offset. What happens when the path has finished calculating but the
 mob is no longer at the starting point?
 
+One possible solution is offloading that responsibility to the mob AI:
+If the mob AI is following a path, and it decides to recalculate, the mob AI
+Is responsible for calling CreatePath with a starting point which is a couple of seconds
+away from the mob's current location.
 */
 };
 
