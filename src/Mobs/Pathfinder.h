@@ -1,4 +1,4 @@
-/* Pathfinder.h - Prototype interface V3
+/* Pathfinder.h - Prototype interface V4
 
 Implementing Pathfinding, see the following links for info:
 http://forum.mc-server.org/showthread.php?tid=1571
@@ -6,9 +6,16 @@ https://github.com/mc-server/MCServer/issues/1391
 
 
 TODO
-Get feedback regarding header before implementing <
-Modify the header to follow the project's code conventions
-Better comments
+Should I throw exceptions?
+Replace maxDistance with maxPoints? - makes a lot of sense
+Anything else before I start implementing?
+
+later:
+Run()? - testing will tell
+Blacklist, ladder list
+Functor instead of maxDown?
+Smoother approach to target?
+
 */
 
 
@@ -19,7 +26,7 @@ Better comments
 
 #pragma once
 #include "Globals.h"
-#include <vector>
+#include "Path.h"
 
 class cPathfinder
 {
@@ -41,12 +48,16 @@ cPathfinder(double a_boundingBoxWidth, double a_boundingBoxHeight,
 
 
 
-/** Creates a path using a*, takes bounding boxes into account
+/** Finds a path using a*, takes bounding boxes into account
+
+Returns 1 on success and fills the given cPath.
+You are encouraged to give the function an already used cPath to save
+allocations.
 
 An exception/error (TODO) will be thrown if a_startPoint is outside an imaginry
 cube which has an edge the size of maxDistance and its origin is at a_endingPoint.
 */
-int CreatePath(std::vector<Vector3d> & my_path, const Vector3d & a_startPoint, const Vector3d & a_endingPoint);
+int FindPath(cPath & resultPath, const Vector3d & a_startPoint, const Vector3d & a_endingPoint);
 
 
 
