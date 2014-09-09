@@ -9,7 +9,7 @@ int CreatePath(std::vector<Vector3d> & my_path, const Vector3d & a_startPoint, c
 {
 	return 1;
 }
-int run()
+bool Run()
 {
 	return 1;
 }

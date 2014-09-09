@@ -48,9 +48,20 @@ cube which has an edge the size of maxDistance and its origin is at a_endingPoin
 */
 int CreatePath(std::vector<Vector3d> & my_path, const Vector3d & a_startPoint, const Vector3d & a_endingPoint);
 
-/* Calculates some of the path, returns true when the path is ready */
-bool run();
+/*
+TODO: The current interface calculates the path immediately, could this cause blocking?
 
+Do we need the following function:
+
+Calculates some of the path, returns true when the path is ready
+The contents of my_path will only change when this function returns true
+bool Run();
+
+If we need this -
+TODO: Handling offset. What happens when the path has finished calculating but the
+mob is no longer at the starting point?
+
+*/
 };
 
 
