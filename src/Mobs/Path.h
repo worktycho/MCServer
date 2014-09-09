@@ -1,4 +1,4 @@
-/* Path.h - Prototype interface V4
+/* Pathfinder.h - Prototype interface V4
 
 Implementing Pathfinding, see the following links for info:
 http://forum.mc-server.org/showthread.php?tid=1571
@@ -8,7 +8,7 @@ https://github.com/mc-server/MCServer/issues/1391
 TODO
 Should I throw exceptions?
 Replace maxDistance with maxPoints? - makes a lot of sense
-
+Anything else before I start implementing?
 
 later:
 Run()? - testing will tell
