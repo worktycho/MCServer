@@ -25,6 +25,7 @@ Smoother approach to target?
 /* Calculates paths using a*. */
 
 #pragma once
+class cPathfinder;
 #include "Globals.h"
 #include "Path.h"
 

@@ -20,7 +20,7 @@ Smoother approach to target?
 
 
 #pragma once
-#include "Globals.h"
+class cPath;
 #include "Pathfinder.h"
 #include <vector>
 
@@ -28,11 +28,12 @@ class cPath
 {
 public:
 	cPath();
-	Vector3d & GetPoint(int index);
+	const Vector3d & GetPoint(int index);
 	int GetLength();
 private:
-	std::vector<Vector3d> & points;
-	int length;
+	std::vector<Vector3d> points;
+	int length; //The length is needed because vector->resize will deallocate everything out of range
+	//However we'd like to minimize de-allocations and re-allocations, and cPath might be reused.
 
 	friend class aPathfinder;
 };

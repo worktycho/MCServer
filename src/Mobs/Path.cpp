@@ -1,8 +1,7 @@
-#include "Path.h";
+#include "Path.h"
 
 cPath::cPath()
 {
-	this->points=new std::vector<Vector3d>;
 	this->length=0;
 }
 
@@ -10,9 +9,9 @@ cPath::cPath()
 
 
 
-Vector3d & cPath::GetPoint(int index)
+const Vector3d & cPath::GetPoint(int index)
 {
-	return new Vector3d(0,0,0);
+	return Vector3d(0,0,0);
 }
 
 
