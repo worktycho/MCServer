@@ -18,6 +18,7 @@
 /*Calculate paths using a* and spits them out as cPath instances.*/
 
 #pragma once
+#include "Path.h";
 
 class cPathfinder
 {

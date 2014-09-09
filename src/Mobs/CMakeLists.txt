@@ -21,6 +21,8 @@ SET (SRCS
 	MagmaCube.cpp
 	Monster.cpp
 	Mooshroom.cpp
+	Pathfinder.cpp
+	Path.cpp
 	PassiveAggressiveMonster.cpp
 	PassiveMonster.cpp
 	Pig.cpp
@@ -56,6 +58,8 @@ SET (HDRS
 	Monster.h
 	Mooshroom.h
 	Ocelot.h
+	Pathfinder.h
+	Path.h
 	PassiveAggressiveMonster.h
 	PassiveMonster.h
 	Pig.h
