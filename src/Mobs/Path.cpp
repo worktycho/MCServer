@@ -10,7 +10,7 @@ cPath::cPath()
 
 
 
-const Vector3d & cPath::GetPoint(int index)
+Vector3d cPath::GetPoint(int index) const
 {
 	return Vector3d(0, 0, 0);
 }
@@ -19,7 +19,7 @@ const Vector3d & cPath::GetPoint(int index)
 
 
 
-int cPath::GetLength()
+int cPath::GetLength() const
 {
 	return 0;
 }
