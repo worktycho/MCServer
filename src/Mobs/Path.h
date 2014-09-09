@@ -14,9 +14,6 @@ Modify the header to follow the project's code conventions
 Better comments
 */
 
-
-
-
 #pragma once
 
 class cPath

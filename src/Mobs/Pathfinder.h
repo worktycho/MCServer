@@ -18,7 +18,7 @@ Better comments
 
 
 
-/* Calculate paths using a* and spits them out as cPath instances. */
+/* Calculates paths using a* and spits them out as cPath instances. */
 
 #pragma once
 #include "Path.h";
@@ -56,6 +56,7 @@ cPath & createPath(const Vector3d & a_startPoint, const Vector3d & a_endingPoint
 
 
 /** just like createPath, but overrides an existing path. Saves memory allocations! */
-cPath & updatePath(const Vector3d & a_path, const Vector3d & a_currentPoint, const Vector3d & a_endingPoint, bool a_guesswork);
+cPath & updatePath(const Vector3d & a_path,
+		const Vector3d & a_currentPoint, const Vector3d & a_endingPoint, bool a_guesswork);
 };
 
