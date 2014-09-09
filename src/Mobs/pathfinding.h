@@ -41,12 +41,20 @@ cPathfinder(double boundingBoxWidth, double boundingBoxHeight,
 
 
 /*Typical usage: (Pseudocode)
- * Cmonster::MoveToPosition(myPathfinder.moveToByPath(my_position,player_position));
+ * Cmonster::MoveToPosition(myPathfinder.getNextPathPoint(my_position,player_position));
  *
  * Note that this function does not necessarily calculate a new path: If the mob is
  * far enough a new path will only be re-calculated once every many calls.
- * Therefore, it is safe to call this every tick */
-const Vector3d & moveToByPath(const Vector3d & currentPoint, const Vector3d & endingPoint);
+ * Therefore, it is safe to call this every tick
+ * (or better: everytime the mob reaches the point returned by the previous getPathPoint)
+ *
+ * If a path is not calculated yet (typically on first call), the returned value will be
+ * determined by the variable "guesswork":
+ * If false: currentPoint will be returned, effectively freezing the mob until the path is calculated.
+ * If true: The returned points will make the mob movein a dumb straight path
+ * towards the target until the path is calculated.
+ * */
+const Vector3d & getPathPoint(const Vector3d & currentPoint, const Vector3d & endingPoint, bool guesswork);
 
 
 
