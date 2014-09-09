@@ -3,14 +3,14 @@
 
 cPath::cPath()
 {
-	this->length=0;
+	m_length=0;
 }
 
 
 
 
 
-Vector3d cPath::GetPoint(int index) const
+Vector3d cPath::GetPoint(int a_index) const
 {
 	return Vector3d(0, 0, 0);
 }

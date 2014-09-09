@@ -28,13 +28,13 @@ class cPath
 {
 public:
 	cPath();
-	Vector3d GetPoint(int index) const;
+	Vector3d GetPoint(int a_index) const;
 	int GetLength() const;
 private:
-	std::vector<Vector3d> points;
-	int length;  // The length is needed because vector->resize will deallocate everything out of range.
+	std::vector<Vector3d> m_points;
+	int m_length;  // The length is needed because vector->resize will deallocate everything out of range.
 	// However we'd like to minimize de-allocations and re-allocations, and cPath might be reused.
 
-	friend class aPathfinder;
+	friend class cPathfinder;
 };
 
