@@ -1,4 +1,4 @@
-/* Pathfinder.h - Prototype interface V4
+/* Pathfind.h - Prototype interface V4
 
 Implementing Pathfinding, see the following links for info:
 http://forum.mc-server.org/showthread.php?tid=1571
