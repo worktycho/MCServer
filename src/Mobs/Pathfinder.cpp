@@ -1,7 +1,8 @@
+/*Not implemented yet*/
 #include "Pathfinder.h"
 
 cPathfinder::cPathfinder(double boundingBoxWidth, double boundingBoxHeight,
-		int maxUp,int maxDown , int maxDistance)
+		int maxUp, int maxDown, int maxDistance)
 {
 
 }

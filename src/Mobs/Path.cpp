@@ -1,3 +1,4 @@
+/*Not implemented yet*/
 #include "Path.h"
 
 cPath::cPath()
@@ -11,7 +12,7 @@ cPath::cPath()
 
 const Vector3d & cPath::GetPoint(int index)
 {
-	return Vector3d(0,0,0);
+	return Vector3d(0, 0, 0);
 }
 
 
