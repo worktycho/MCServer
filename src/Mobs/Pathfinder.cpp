@@ -5,12 +5,11 @@ cPathfinder::cPathfinder(double boundingBoxWidth, double boundingBoxHeight,
 {
 
 }
-
-
-
-
-
-cPath & cPathfinder::createPath(const Vector3d & a_currentPoint, const Vector3d & a_endingPoint, bool a_guesswork)
+int CreatePath(std::vector<Vector3d> & my_path, const Vector3d & a_startPoint, const Vector3d & a_endingPoint)
 {
-	return new cPath();
+	return 1;
+}
+int run()
+{
+	return 1;
 }

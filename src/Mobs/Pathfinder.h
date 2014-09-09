@@ -1,7 +1,4 @@
-/* Pathfinder.h - Prototype interface V2 - Subject to change, not implemented yet.
-
-Created on: Sep 8, 2014
-Author: Wiseoldman95
+/* Pathfinder.h - Prototype interface V3
 
 Implementing Pathfinding, see the following links for info:
 http://forum.mc-server.org/showthread.php?tid=1571
@@ -21,7 +18,8 @@ Better comments
 /* Calculates paths using a* and spits them out as cPath instances. */
 
 #pragma once
-#include "Path.h";
+#include "Globals.h"
+#include <vector>
 
 class cPathfinder
 {
@@ -43,20 +41,16 @@ cPathfinder(double a_boundingBoxWidth, double a_boundingBoxHeight,
 
 
 
-
 /** Creates a path using a*, takes bounding boxes into account
 
 An exception (TODO) will be thrown if a_startPoint is outside an imaginry
 cube which has an edge the size of maxDistance and its origin is at a_endingPoint.
 */
-cPath & createPath(const Vector3d & a_startPoint, const Vector3d & a_endingPoint, bool a_guesswork);
+int CreatePath(std::vector<Vector3d> & my_path, const Vector3d & a_startPoint, const Vector3d & a_endingPoint);
 
+/* Calculates some of the path, returns true when the path is ready */
+bool run();
 
-
-
-
-/** just like createPath, but overrides an existing path. Saves memory allocations! */
-cPath & updatePath(const Vector3d & a_path,
-		const Vector3d & a_currentPoint, const Vector3d & a_endingPoint, bool a_guesswork);
 };
+
 
