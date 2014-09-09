@@ -8,6 +8,8 @@
  *
  */
 
+//TODO CMakeLists
+
 #include "Pathfinder.h"
 
 cPathfinder::cPathfinder(double boundingBoxWidth, double boundingBoxHeight,
@@ -16,7 +18,7 @@ cPathfinder::cPathfinder(double boundingBoxWidth, double boundingBoxHeight,
 
 }
 
-const Vector3d & getPathPoint(const Vector3d & currentPoint, const Vector3d & endingPoint, bool guesswork)
+cPath & cPathfinder::createPath(const Vector3d & a_currentPoint, const Vector3d & a_endingPoint, bool a_guesswork)
 {
-	return new const Vector3d(0,0,0);
+	return new cPath();
 }

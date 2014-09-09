@@ -29,7 +29,7 @@ cPathfinder(double a_boundingBoxWidth, double a_boundingBoxHeight,
  *  rarely changing parameters each call*/
 
 
-cPath & createPath(const Vector3d & a_currentPoint, const Vector3d & a_endingPoint, bool guesswork);
+cPath & createPath(const Vector3d & a_currentPoint, const Vector3d & a_endingPoint, bool a_guesswork);
 
 
 
