@@ -1,4 +1,4 @@
-/* pathfinding.cpp
+/* pathfinding.cpp - Prototype interface V2 - Subject to change, not implemented yet.
  *
  *  Created on: Sep 8, 2014
  *      Author: Wiseoldman95
@@ -6,14 +6,15 @@
  *      http://forum.mc-server.org/showthread.php?tid=1571
  *      https://github.com/mc-server/MCServer/issues/1391
  *
- */
-
-
-/*TODO
+ *
+ * TODO
  * Get feedback regarding header before implementing <
  * Modify the header to follow the project's code conventions
  * Better comments
- * */
+ */
+
+
+
 
 
 /*Calculate paths using a* and spits them out as cPath instances.*/
