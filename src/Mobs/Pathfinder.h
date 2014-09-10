@@ -1,4 +1,4 @@
-/* Pathfinder.h - Prototype interface V4
+/* Pathfinder.h - Prototype interface V6
 
 Implementing Pathfinding, see the following links for info:
 http://forum.mc-server.org/showthread.php?tid=1571
@@ -6,9 +6,7 @@ https://github.com/mc-server/MCServer/issues/1391
 
 
 TODO
-Should I throw exceptions?
-Replace maxDistance with maxPoints? - makes a lot of sense
-Anything else before I start implementing?
+Anything comments before I start implementing?
 
 later:
 Run()? - testing will tell
@@ -87,7 +85,7 @@ private:
 
 	// A* fields
 	static unordered_map<Vector3d,pathPoint> points; //maps real points to pathfinding points
-	static pathPoint & m_smallestF; // The smallest node in our open list
+	static pathPoint & m_smallestF; // The node with the smallest F in our open list
 
 	// A* stuff
 	static Vector3d pathPointToVector(pathPoint & point);

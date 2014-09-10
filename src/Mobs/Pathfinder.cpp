@@ -1,5 +1,5 @@
-/* BLEEDING EDGE
- * Most parts not implemented yet*/
+/* BLEEDING EDGE - Unstable, might not compile, most parts not implemented yet*/
+
 #include "Pathfinder.h"
 #include <cmath>
 
