@@ -9,7 +9,7 @@ typedef cPathfinder::pathPoint pathPoint;
 
 
 
-static bool cPathfinder::isAtSameBlock(Vector3d a_v1, Vector3d a_v2)
+static bool cPathfinder::IsAtSameBlock(Vector3d a_v1, Vector3d a_v2)
 {
 	if 	(
 		floor(a_v1.x)-floor(a_v2.x)==0 &&
@@ -24,7 +24,7 @@ static bool cPathfinder::isAtSameBlock(Vector3d a_v1, Vector3d a_v2)
 
 
 
-static int cPathfinder::manhattanDistance(Vector3d a_v1, Vector3d a_v2)
+static int cPathfinder::ManhattanDistance(Vector3d a_v1, Vector3d a_v2)
 {
 	return
 		(
@@ -38,7 +38,7 @@ static int cPathfinder::manhattanDistance(Vector3d a_v1, Vector3d a_v2)
 
 
 
-Vector3d cPathfinder::pathPointToVector(pathPoint & point)
+Vector3d cPathfinder::PathPointToVector(pathPoint & point)
 {
 	return Vector3d(point.x, point.y, point.z);
 }
@@ -47,7 +47,7 @@ Vector3d cPathfinder::pathPointToVector(pathPoint & point)
 
 
 
-static int cPathfinder::calculateG(int a_deltaX, int a_deltaY, int a_deltaZ)
+static int cPathfinder::CalculateG(int a_deltaX, int a_deltaY, int a_deltaZ)
 {
 	return 100*round(sqrt(a_deltaX*a_deltaX+a_deltaY*a_deltaY+a_deltaZ*a_deltaZ));
 	// TODO there are only a handful of possible G values, pre calculate them and return the right one
@@ -59,13 +59,13 @@ static int cPathfinder::calculateG(int a_deltaX, int a_deltaY, int a_deltaZ)
 
 
 
-void cPathfinder::openListAdd(const Vector3d & a_point, int a_g)
+void cPathfinder::OpenListAdd(const Vector3d & a_point, int a_g)
 {
 	pathPoint newPoint;
 	newPoint.x=a_point.x;
 	newPoint.y=a_point.y;
 	newPoint.z=a_point.z;
-	newPoint.h=100*manhattanDistance(a_point, m_target);
+	newPoint.h=100*ManhattanDistance(a_point, m_target);
 	newPoint.g=a_g;
 	newPoint.f=newPoint.h+newPoint.g;
 	points[a_point]=newPoint;
@@ -113,7 +113,7 @@ int a_maxUp, int a_maxDown, int a_maxDistance, int a_maxSearch,
 cPath & a_resultPath, const Vector3d & a_startPoint, const Vector3d & a_endingPoint)
 {
 
-	if (manhattanDistance(a_startPoint, a_endingPoint) > a_maxDistance)
+	if (ManhattanDistance(a_startPoint, a_endingPoint) > a_maxDistance)
 	{
 		// TODO This should never happen, throwing an exception here is a good idea.
 		// Or we could simply ditch the a_maxDistance parameter and hope the AI behaves correctly.
@@ -136,7 +136,7 @@ cPath & a_resultPath, const Vector3d & a_startPoint, const Vector3d & a_endingPo
 
 
 	// Add the starting point to the open list.
-	openListAdd(a_endingPoint, 0);  // We actually start from the end, this is more efficient for tracing a* parents.
+	OpenListAdd(a_endingPoint, 0);  // We actually start from the end, this is more efficient for tracing a* parents.
 	pathPoint currentPoint;
 	Vector3d currentVector;
 	int searchedPoints=0;
@@ -146,7 +146,7 @@ cPath & a_resultPath, const Vector3d & a_startPoint, const Vector3d & a_endingPo
 		if (m_smallestF==NULL || searchedPoints++>a_maxSearch) return 0;  // No path.
 		currentPoint=m_smallestF;
 		m_smallestF=m_smallestF.nextF;
-		currentVector=pathPointToVector(currentPoint);
+		currentVector=PathPointToVector(currentPoint);
 
 		// Scan the ajacent blocks.
 		Vector3d neighbor;
@@ -162,17 +162,18 @@ cPath & a_resultPath, const Vector3d & a_startPoint, const Vector3d & a_endingPo
 
 					neighbor = Vector3d(currentVector.x+x, currentVector.y+y, currentVector.z+z);
 
-					if (isAtSameBlock(neighbor, m_target))
+					if (IsAtSameBlock(neighbor, m_target))
 					{
 						// TODO write to a_resultPath.
 						return 1;
 					}
 
+					// TODO Check if already at open list, compare G's.
 					// TODO Do not add solids to the open list. cChunk stuff here!
 					// TODO Let openListAdd / some other function handle partials and bounding boxes (slabs, etc).
 					// Note to self: handling means: 1. checking bounding boxes 2. modifying currentPoint's xyz (the avg thing)
 					// 3. checking if the modifyed xyz are out of currentPoint's limits, if so, mark as closed
-					openListAdd(neighbor, calculateG(x, y, z));
+					OpenListAdd(neighbor, CalculateG(x, y, z));
 				}
 			}
 		}

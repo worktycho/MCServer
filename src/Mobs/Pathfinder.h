@@ -6,7 +6,7 @@ https://github.com/mc-server/MCServer/issues/1391
 
 
 TODO
-Anything comments before I start implementing?
+Any comments before I start implementing?
 
 later:
 Run()? - testing will tell
@@ -86,15 +86,16 @@ private:
 	// A* fields.
 	static unordered_map<Vector3d, pathPoint> points;  // maps real points to pathfinding points.
 	static pathPoint & m_smallestF;  // The node with the smallest F in our open list.
+	// TODO possibly switch this to a pointer, there problems with comparing to null.
 
 	// A* stuff.
-	static Vector3d pathPointToVector(pathPoint & point);
-	static void openListAdd(const Vector3d & a_point, int a_g);
-	static int calculateG(int a_deltaX, int a_deltaY, int a_deltaZ);
+	static Vector3d PathPointToVector(pathPoint & point);
+	static void OpenListAdd(const Vector3d & a_point, int a_g);
+	static int CalculateG(int a_deltaX, int a_deltaY, int a_deltaZ);
 
 	// Vector comparison stuff.
-	static int manhattanDistance(Vector3d a_v1, Vector3d a_v2);
-	static bool isAtSameBlock(Vector3d a_v1, Vector3d a_v2);
+	static int ManhattanDistance(Vector3d a_v1, Vector3d a_v2);
+	static bool IsAtSameBlock(Vector3d a_v1, Vector3d a_v2);
 };
 
 
