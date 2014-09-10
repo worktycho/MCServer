@@ -5,29 +5,48 @@
 
 typedef cPathfinder::pathPoint pathPoint;
 
-static bool cPathfinder::isAtSameBlock(Vector3d a_v1,Vector3d a_v2)
+
+
+
+
+static bool cPathfinder::isAtSameBlock(Vector3d a_v1, Vector3d a_v2)
 {
 	if 	(
-			floor(a_v1.x)-floor(a_v2.x)==0 &&
-			floor(a_v1.y)-floor(a_v2.y)==0 &&
-			floor(a_v1.z)-floor(a_v2.z)==0
+		floor(a_v1.x)-floor(a_v2.x)==0 &&
+		floor(a_v1.y)-floor(a_v2.y)==0 &&
+		floor(a_v1.z)-floor(a_v2.z)==0
 		)
 		return true;
 	return false;
 }
-static int cPathfinder::manhattanDistance(Vector3d a_v1,Vector3d a_v2)
+
+
+
+
+
+static int cPathfinder::manhattanDistance(Vector3d a_v1, Vector3d a_v2)
 {
 	return
 		(
-				abs( floor(a_v1.x) - floor(a_v2.x) ) +
-				abs( floor(a_v1.y) - floor(a_v2.y) ) +
-				abs( floor(a_v1.z) - floor(a_v2.z) )
+		abs(floor(a_v1.x) - floor(a_v2.x)) +
+		abs(floor(a_v1.y) - floor(a_v2.y)) +
+		abs(floor(a_v1.z) - floor(a_v2.z))
 		);
 }
+
+
+
+
+
 Vector3d cPathfinder::pathPointToVector(pathPoint & point)
 {
-	return Vector3d(point.x,point.y,point.z);
+	return Vector3d(point.x, point.y, point.z);
 }
+
+
+
+
+
 static int cPathfinder::calculateG(int a_deltaX, int a_deltaY, int a_deltaZ)
 {
 	return 100*round(sqrt(a_deltaX*a_deltaX+a_deltaY*a_deltaY+a_deltaZ*a_deltaZ));
@@ -35,20 +54,25 @@ static int cPathfinder::calculateG(int a_deltaX, int a_deltaY, int a_deltaZ)
 	// using a simple switch for maximum performance
 }
 
-void cPathfinder::openListAdd(const Vector3d & a_point,int a_g)
+
+
+
+
+
+void cPathfinder::openListAdd(const Vector3d & a_point, int a_g)
 {
 	pathPoint newPoint;
 	newPoint.x=a_point.x;
 	newPoint.y=a_point.y;
 	newPoint.z=a_point.z;
-	newPoint.h=100*manhattanDistance(a_point,m_target);
+	newPoint.h=100*manhattanDistance(a_point, m_target);
 	newPoint.g=a_g;
 	newPoint.f=newPoint.h+newPoint.g;
 	points[a_point]=newPoint;
 
 
 	// Insert our new point to the F list. (An ascending list, smallest F first at m_smallestF)
-	if (m_smallestF==NULL) // Case 1, first in the list
+	if (m_smallestF==NULL)  // Case 1, first in the list
 	{
 		m_smallestF=points[a_point];
 		m_smallestF.nextF=NULL;
@@ -63,14 +87,14 @@ void cPathfinder::openListAdd(const Vector3d & a_point,int a_g)
 			previousPoint=currentPoint;
 			currentPoint=currentPoint.nextF;
 
-			if (currentPoint.nextF==NULL) // Case 2, We're the biggest on the list
+			if (currentPoint.nextF==NULL)  // Case 2, We're the biggest on the list
 			{
 				currentPoint.nextF=points[a_point];
 				points[a_point].nextF=NULL;
 				break;
 			}
 
-			if (currentPoint.f > points[a_point].f) // Case 3, We're somewhere in the middle
+			if (currentPoint.f > points[a_point].f)  // Case 3, We're somewhere in the middle
 			{
 				previousPoint.nextF=points[a_point];
 				points[a_point].nextF=currentPoint;
@@ -80,12 +104,16 @@ void cPathfinder::openListAdd(const Vector3d & a_point,int a_g)
 	}
 }
 
+
+
+
+
 static int cPathfinder::FindPath(double a_boundingBoxWidth, double a_boundingBoxHeight,
 int a_maxUp, int a_maxDown, int a_maxDistance, int a_maxSearch,
-cPath & a_resultPath, const Vector3d & a_startPoint,const Vector3d & a_endingPoint)
+cPath & a_resultPath, const Vector3d & a_startPoint, const Vector3d & a_endingPoint)
 {
 
-	if (manhattanDistance(a_startPoint,a_endingPoint) > a_maxDistance)
+	if (manhattanDistance(a_startPoint, a_endingPoint) > a_maxDistance)
 	{
 		// TODO This should never happen, throwing an exception here is a good idea.
 		// Or we could simply ditch the a_maxDistance parameter and hope the AI behaves correctly.
@@ -108,14 +136,14 @@ cPath & a_resultPath, const Vector3d & a_startPoint,const Vector3d & a_endingPoi
 
 
 	// Add the starting point to the open list.
-	openListAdd(a_endingPoint,0);  // We actually start from the end, this is more efficient for tracing a* parents.
+	openListAdd(a_endingPoint, 0);  // We actually start from the end, this is more efficient for tracing a* parents.
 	pathPoint currentPoint;
 	Vector3d currentVector;
 	int searchedPoints=0;
 	while (1)
 	{
 		// Look for the lowest F cost on the open list.
-		if (m_smallestF==NULL || searchedPoints++>a_maxSearch) return 0; //No path
+		if (m_smallestF==NULL || searchedPoints++>a_maxSearch) return 0;  // No path.
 		currentPoint=m_smallestF;
 		m_smallestF=m_smallestF.nextF;
 		currentVector=pathPointToVector(currentPoint);
@@ -128,13 +156,13 @@ cPath & a_resultPath, const Vector3d & a_startPoint,const Vector3d & a_endingPoi
 			{
 				for (int z=-1;z<=1;z+=1)
 				{
-					if (x==0 && y==0 && z==0) continue; // No point in checking oneself.
-					if (x==0 && y==0 && z==-1) continue; // No point in checking directly beneath self.
+					if (x==0 && y==0 && z==0) continue;  // No point in checking oneself.
+					if (x==0 && y==0 && z==-1) continue;  // No point in checking directly beneath self.
 					// TODO There are more things with no point checking.
 
 					neighbor = Vector3d(currentVector.x+x, currentVector.y+y, currentVector.z+z);
 
-					if (isAtSameBlock(neighbor,m_target))
+					if (isAtSameBlock(neighbor, m_target))
 					{
 						// TODO write to a_resultPath.
 						return 1;
@@ -142,12 +170,12 @@ cPath & a_resultPath, const Vector3d & a_startPoint,const Vector3d & a_endingPoi
 
 					// TODO Do not add solids to the open list. cChunk stuff here!
 					// TODO Let openListAdd / some other function handle partials and bounding boxes (slabs, etc).
-					//Note to self: handling means: 1. checking bounding boxes 2. modifying currentPoint's xyz (the avg thing)
-					//3. checking if the modifyed xyz are out of currentPoint's limits, if so, mark as closed
-					openListAdd(neighbor, calculateG(x,y,z));
+					// Note to self: handling means: 1. checking bounding boxes 2. modifying currentPoint's xyz (the avg thing)
+					// 3. checking if the modifyed xyz are out of currentPoint's limits, if so, mark as closed
+					openListAdd(neighbor, calculateG(x, y, z));
 				}
 			}
 		}
 	}
-	return 0; // Useless, stops some compilers from complaining.
+	return 0;  // Useless, stops some compilers from complaining.
 }
